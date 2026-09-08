@@ -1,0 +1,10 @@
+remote_theme: just-the-docs/just-the-docs
+title: "SER225 Platformer Game"
+relative_links:
+  enabled: true
+  collections: true
+search_enabled: true
+search:
+  heading_level: 3
+plugins:
+  - jemoji
