@@ -84,6 +84,11 @@ public abstract class Map {
         loadMapFile();
 
         this.enemies = loadEnemies();
+
+        // made it so if enemies is null it doesnt throw a bug - alex
+        if (this.enemies == null) {
+            this.enemies = new ArrayList<>();
+        }
         for (Enemy enemy: this.enemies) {
             enemy.setMap(this);
         }
@@ -93,7 +98,11 @@ public abstract class Map {
             enhancedMapTile.setMap(this);
         }
 
+        // made it so if npcs is null it doesnt throw a bug - alex
         this.npcs = loadNPCs();
+        if (this.npcs == null) {
+            this.npcs = new ArrayList<>();
+        }
         for (NPC npc: this.npcs) {
             npc.setMap(this);
         }
