@@ -49,7 +49,8 @@ public class DebugMap extends Map {
             int maxX = firstFlatZone ? 24 : 49;
             int randomX = minX + random.nextInt(maxX - minX + 1);
 
-            PlaceholderPowerup powerup = new PlaceholderPowerup(getMapTile(randomX, 10).getLocation());
+            int groundY = findGroundLevel(randomX);
+            PlaceholderPowerup powerup = new PlaceholderPowerup(getMapTile(randomX, groundY - 1).getLocation());
             enhancedMapTiles.add(powerup);
         }
 
@@ -59,5 +60,15 @@ public class DebugMap extends Map {
     @Override
     public ArrayList<NPC> loadNPCs() {
         return null;
+    }
+
+    private int findGroundLevel(int x) {
+        for (int y = 0; y < height; y++) {
+            TileType tileType = getMapTile(x, y).getTileType();
+            if (tileType == TileType.NOT_PASSABLE || tileType == TileType.SLOPE) {
+                return y;
+            }
+        }
+        return height - 1;
     }
 }
