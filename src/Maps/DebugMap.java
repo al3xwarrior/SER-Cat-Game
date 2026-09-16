@@ -1,5 +1,7 @@
 package Maps;
 
+import Powerups.PlaceholderPowerup;
+import java.util.Random;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
 import EnhancedMapTiles.HorizontalMovingPlatform;
@@ -38,6 +40,18 @@ public class DebugMap extends Map {
 
         EndLevelBox endLevelBox = new EndLevelBox(getMapTile(32, 7).getLocation());
         enhancedMapTiles.add(endLevelBox);
+
+        int numberOfPowerups = 5;
+        Random random = new Random();
+        for (int i = 0; i < numberOfPowerups; i++) {
+            boolean firstFlatZone = random.nextBoolean();
+            int minX = firstFlatZone ? 13 : 30;
+            int maxX = firstFlatZone ? 24 : 49;
+            int randomX = minX + random.nextInt(maxX - minX + 1);
+
+            PlaceholderPowerup powerup = new PlaceholderPowerup(getMapTile(randomX, 10).getLocation());
+            enhancedMapTiles.add(powerup);
+        }
 
         return enhancedMapTiles;
     }
