@@ -408,4 +408,15 @@ public abstract class Map {
 
     public int getEndBoundX() { return endBoundX; }
     public int getEndBoundY() { return endBoundY; }
+
+    // Written by Flavio, but put here by Alex so it can be used across all maps.
+    public int findGroundLevel(int x) {
+        for (int y = 0; y < height; y++) {
+            TileType tileType = getMapTile(x, y).getTileType();
+            if (tileType == TileType.NOT_PASSABLE || tileType == TileType.SLOPE) {
+                return y;
+            }
+        }
+        return height - 1;
+    }
 }
