@@ -17,11 +17,13 @@ public class Cat extends Player {
     public Cat(float x, float y) {
         super(new SpriteSheet(ImageLoader.load("Cat.png"), 24, 24), x, y, "STAND_RIGHT");
         gravity = .5f;
-        terminalVelocityY = 6f;
-        jumpHeight = 14.5f;
+        baseFriction = 1.2f;
+        terminalVelocityY = 10f;
+        terminalVelocityX = 5f;
+        jumpHeight = 11.5f; // one block is euqal to 7.3f
         jumpDegrade = .5f;
-        walkSpeed = 2.3f;
-        momentumYIncrease = .5f;
+        walkSpeed = 1f;
+        momentumYIncrease = .75f;
     }
 
     public void update() {

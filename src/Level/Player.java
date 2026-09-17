@@ -7,7 +7,6 @@ import GameObject.GameObject;
 import GameObject.SpriteSheet;
 import Utils.AirGroundState;
 import Utils.Direction;
-
 import java.util.ArrayList;
 
 public abstract class Player extends GameObject {
@@ -15,14 +14,18 @@ public abstract class Player extends GameObject {
     // these should be set in a subclass
     protected float walkSpeed = 0;
     protected float gravity = 0;
+    protected float baseFriction = 0;
     protected float jumpHeight = 0;
     protected float jumpDegrade = 0;
     protected float terminalVelocityY = 0;
+    protected float terminalVelocityX = 0;
     protected float momentumYIncrease = 0;
 
     // values used to handle player movement
     protected float jumpForce = 0;
     protected float momentumY = 0;
+    protected float momentumX = 0;
+    protected float appliedFriction = 1.2f;
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
 
@@ -44,6 +47,9 @@ public abstract class Player extends GameObject {
     protected Key MOVE_RIGHT_KEY = Key.RIGHT;
     protected Key CROUCH_KEY = Key.DOWN;
 
+    protected Key DASH_KEY = Key.Z;
+    protected Key POUNCE_KEY = Key.X;
+
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
 
@@ -58,7 +64,15 @@ public abstract class Player extends GameObject {
     }
 
     public void update() {
-        moveAmountX = 0;
+        if (getAirGroundState() == AirGroundState.GROUND) {
+            momentumX /= appliedFriction;
+        }
+
+        if (Math.abs(momentumX) > terminalVelocityX) {
+            momentumX = terminalVelocityX * Math.signum(momentumX);
+        }
+
+        moveAmountX = momentumX;
         moveAmountY = 0;
 
         // if player is currently playing through level (has not won or lost)
@@ -116,6 +130,9 @@ public abstract class Player extends GameObject {
             case JUMPING:
                 playerJumping();
                 break;
+            case SLIDING:
+                playerSliding();
+                break;
         }
     }
 
@@ -142,13 +159,13 @@ public abstract class Player extends GameObject {
     protected void playerWalking() {
         // if walk left key is pressed, move player to the left
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
-            moveAmountX -= walkSpeed;
+            momentumX -= walkSpeed;
             facingDirection = Direction.LEFT;
         }
 
         // if walk right key is pressed, move player to the right
         else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
-            moveAmountX += walkSpeed;
+            momentumX += walkSpeed; 
             facingDirection = Direction.RIGHT;
         } else if (Keyboard.isKeyUp(MOVE_LEFT_KEY) && Keyboard.isKeyUp(MOVE_RIGHT_KEY)) {
             playerState = PlayerState.STANDING;
@@ -168,6 +185,11 @@ public abstract class Player extends GameObject {
 
     // player CROUCHING state logic
     protected void playerCrouching() {
+        // if the player's x velocity is above a certain threshold, player enters SLIDING state
+        if (Math.abs(momentumX) > 2) {
+            playerState = PlayerState.SLIDING;
+        }
+
         // if crouch key is released, player enters STANDING state
         if (Keyboard.isKeyUp(CROUCH_KEY)) {
             playerState = PlayerState.STANDING;
@@ -177,6 +199,36 @@ public abstract class Player extends GameObject {
         if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
             keyLocker.lockKey(JUMP_KEY);
             playerState = PlayerState.JUMPING;
+        }
+    }
+
+    // player SLIDING state logic
+    protected void playerSliding() {
+        appliedFriction = 1.025f; // TODO this probably shouldnt be hardcoded?
+
+        // if crouch key is released, player enters STANDING state
+        if (Keyboard.isKeyUp(CROUCH_KEY)) {
+            playerState = PlayerState.STANDING;
+            appliedFriction = baseFriction;
+        }
+
+        // if jump key is pressed, player enters JUMPING state
+        if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
+            keyLocker.lockKey(JUMP_KEY);
+            playerState = PlayerState.JUMPING;
+            appliedFriction = baseFriction;
+        }
+        
+        // additionally, if the player's x momentum is too slow and they are still crouching, player enters CROUCHING state
+        if (Math.abs(momentumX) < 1 && Keyboard.isKeyDown(CROUCH_KEY)) {
+            playerState = PlayerState.CROUCHING;
+            appliedFriction = baseFriction;
+        }
+
+        // if we leave the ground during a slide, player enters JUMPING state
+        else if (previousAirGroundState == AirGroundState.GROUND && airGroundState == AirGroundState.AIR) {
+            playerState = PlayerState.JUMPING;
+            appliedFriction = baseFriction;
         }
     }
 
@@ -212,9 +264,9 @@ public abstract class Player extends GameObject {
 
             // allows you to move left and right while in the air
             if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
-                moveAmountX -= walkSpeed;
+                momentumX -= walkSpeed / 2;
             } else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
-                moveAmountX += walkSpeed;
+                momentumX += walkSpeed / 2;
             }
 
             // if player is falling, increases momentum as player falls so it falls faster over time
@@ -330,7 +382,7 @@ public abstract class Player extends GameObject {
         else if (map.getCamera().containsDraw(this)) {
             currentAnimationName = "WALK_RIGHT";
             super.update();
-            moveXHandleCollision(walkSpeed);
+            moveXHandleCollision(walkSpeed * 3);
         } else {
             // tell all player listeners that the player has finished the level
             for (PlayerListener listener : listeners) {
