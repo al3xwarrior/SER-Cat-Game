@@ -1,12 +1,16 @@
 package Level;
 
+import Engine.GraphicsHandler;
 import Engine.Key;
 import Engine.KeyLocker;
 import Engine.Keyboard;
 import GameObject.GameObject;
+import GameObject.ImageEffect;
 import GameObject.SpriteSheet;
 import Utils.AirGroundState;
 import Utils.Direction;
+import java.awt.Color;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 public abstract class Player extends GameObject {
@@ -53,6 +57,14 @@ public abstract class Player extends GameObject {
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
 
+    // values used to handle a timed invincibility power-up (see makeInvincible)
+    protected static final Color INVINCIBILITY_TINT_COLOR = new Color(130, 220, 255, 150);
+    protected static final int INVINCIBILITY_FLICKER_WARNING_FRAMES = 90; // start flickering this many frames before invincibility ends, to warn the player
+    protected int invincibilityFramesRemaining = 0;
+
+    // image of whatever item the player currently has equipped (e.g. a hockey stick from a power-up), drawn alongside the player -- null if nothing is equipped
+    protected BufferedImage equippedItemImage = null;
+
     public Player(SpriteSheet spriteSheet, float x, float y, String startingAnimationName) {
         super(spriteSheet, x, y, startingAnimationName);
         facingDirection = Direction.RIGHT;
@@ -77,6 +89,8 @@ public abstract class Player extends GameObject {
 
         // if player is currently playing through level (has not won or lost)
         if (levelState == LevelState.RUNNING) {
+            updateInvincibility();
+
             applyGravity();
 
             // update player's state and current actions, which includes things like determining how much it should move each frame and if its walking or jumping
@@ -363,6 +377,39 @@ public abstract class Player extends GameObject {
         }
     }
 
+    // makes the player invincible (immune to hurtPlayer) for the given number of frames, and gives it the invincibility glow
+    public void makeInvincible(int frames) {
+        isInvincible = true;
+        invincibilityFramesRemaining = frames;
+        setTintColor(INVINCIBILITY_TINT_COLOR);
+    }
+
+    // counts down the player's remaining invincibility time, flickering the glow briefly before it ends as a warning
+    protected void updateInvincibility() {
+        if (!isInvincible) {
+            return;
+        }
+
+        invincibilityFramesRemaining--;
+        if (invincibilityFramesRemaining <= 0) {
+            isInvincible = false;
+            setTintColor(null);
+            unequipItem();
+        } else if (invincibilityFramesRemaining < INVINCIBILITY_FLICKER_WARNING_FRAMES) {
+            boolean flickerOn = (invincibilityFramesRemaining / 6) % 2 == 0;
+            setTintColor(flickerOn ? INVINCIBILITY_TINT_COLOR : null);
+        }
+    }
+
+    // visually equips the player with the given item image, drawn alongside the player until unequipItem is called
+    public void equipItem(BufferedImage itemImage) {
+        this.equippedItemImage = itemImage;
+    }
+
+    public void unequipItem() {
+        this.equippedItemImage = null;
+    }
+
     // other entities can call this to tell the player they beat a level
     public void completeLevel() {
         levelState = LevelState.LEVEL_COMPLETED;
@@ -445,6 +492,21 @@ public abstract class Player extends GameObject {
 
     public void addListener(PlayerListener listener) {
         listeners.add(listener);
+    }
+
+    @Override
+    public void draw(GraphicsHandler graphicsHandler) {
+        super.draw(graphicsHandler);
+
+        // draws whatever item the player currently has equipped (e.g. a power-up's hockey stick) just in front of the player, facing the same direction
+        if (equippedItemImage != null) {
+            int itemSize = Math.round(getHeight() * .6f);
+            int overlap = Math.round(itemSize * .3f); // how far the item tucks into the player, so it reads as "held" instead of floating off to the side
+            int drawX = Math.round(getCalibratedXLocation()) + (facingDirection == Direction.RIGHT ? getWidth() - overlap : overlap - itemSize);
+            int drawY = Math.round(getCalibratedYLocation()) + Math.round(getHeight() * .2f);
+            ImageEffect imageEffect = facingDirection == Direction.RIGHT ? ImageEffect.NONE : ImageEffect.FLIP_HORIZONTAL;
+            graphicsHandler.drawImage(equippedItemImage, drawX, drawY, itemSize, itemSize, imageEffect);
+        }
     }
 
     // Uncomment this to have game draw player's bounds to make it easier to visualize

@@ -2,9 +2,32 @@ package Utils;
 
 import java.awt.*;
 import java.awt.image.*;
+import java.util.HashMap;
 
 // This class has some useful image methods that are used when loading in images to the game
 public class ImageUtils {
+	// cache of tinted images so the same image/color combination isn't re-rendered every frame
+	private static final HashMap<String, BufferedImage> tintCache = new HashMap<>();
+
+	// returns a copy of the given image tinted with the given color, preserving the image's original transparency/silhouette
+	// used to give the player a "powered up" look (e.g. while invincible) without needing separate sprite art
+	public static BufferedImage tintImage(BufferedImage image, Color tintColor) {
+		String cacheKey = System.identityHashCode(image) + ":" + tintColor.getRGB();
+		if (tintCache.containsKey(cacheKey)) {
+			return tintCache.get(cacheKey);
+		}
+
+		BufferedImage tintedImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);
+		Graphics2D g = tintedImage.createGraphics();
+		g.drawImage(image, 0, 0, null);
+		g.setComposite(AlphaComposite.SrcAtop);
+		g.setColor(tintColor);
+		g.fillRect(0, 0, image.getWidth(), image.getHeight());
+		g.dispose();
+
+		tintCache.put(cacheKey, tintedImage);
+		return tintedImage;
+	}
 	// changes desired color to be transparent (the chosen color will not be seen in game when drawn)
 	public static BufferedImage transformColorToTransparency(BufferedImage image, Color transparentColor) {
 		BufferedImage newImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_INT_ARGB);

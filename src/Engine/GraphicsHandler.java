@@ -1,6 +1,7 @@
 package Engine;
 
 import GameObject.ImageEffect;
+import Utils.ImageUtils;
 
 import java.awt.*;
 import java.awt.font.GlyphVector;
@@ -42,6 +43,12 @@ public class GraphicsHandler {
                 g.drawImage(image, x + width, y + height, -width, -height, null);
                 break;
         }
+    }
+
+    // draws the image tinted with the given color (or untinted if tintColor is null) -- used for things like the player's invincibility glow
+    public void drawImage(BufferedImage image, int x, int y, int width, int height, ImageEffect imageEffect, Color tintColor) {
+        BufferedImage imageToDraw = tintColor != null ? ImageUtils.tintImage(image, tintColor) : image;
+        drawImage(imageToDraw, x, y, width, height, imageEffect);
     }
 
     public void drawRectangle(int x, int y, int width, int height, Color color) {

@@ -1,6 +1,6 @@
 package Maps;
 
-import Powerups.PlaceholderPowerup;
+import Powerups.HockeyStickPowerup;
 import java.util.Random;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
@@ -51,7 +51,7 @@ public class DebugMap extends Map {
 
             int groundY = findGroundLevel(randomX);
 
-            PlaceholderPowerup powerup = new PlaceholderPowerup(getMapTile(randomX, groundY - 1).getLocation());
+            HockeyStickPowerup powerup = new HockeyStickPowerup(getMapTile(randomX, groundY - 1).getLocation());
             enhancedMapTiles.add(powerup);
         }
 
