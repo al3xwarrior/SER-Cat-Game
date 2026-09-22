@@ -562,8 +562,16 @@ public abstract class Player extends GameObject {
             int overlap = Math.round(itemSize * .3f); // how far the item tucks into the player, so it reads as "held" instead of floating off to the side
             int drawX = Math.round(getCalibratedXLocation()) + (facingDirection == Direction.RIGHT ? getWidth() - overlap : overlap - itemSize);
             int drawY = Math.round(getCalibratedYLocation()) + Math.round(getHeight() * .2f);
-            ImageEffect imageEffect = facingDirection == Direction.RIGHT ? ImageEffect.NONE : ImageEffect.FLIP_HORIZONTAL;
-            graphicsHandler.drawImage(equippedItemImage, drawX, drawY, itemSize, itemSize, imageEffect);
+            // ImageEffect imageEffect = facingDirection == Direction.RIGHT ? ImageEffect.NONE : ImageEffect.FLIP_HORIZONTAL; 
+            // ^^ this line breaks the game
+
+            // vv this is a longer version of the line above (which breaks the game), just to ensure this works on all devices
+            if (facingDirection == Direction.RIGHT) {
+                graphicsHandler.drawImage(equippedItemImage, drawX, drawY, itemSize, itemSize,ImageEffect.NONE);
+            } else {
+                graphicsHandler.drawImage(equippedItemImage, drawX, drawY, itemSize, itemSize,ImageEffect.FLIP_HORIZONTAL);
+            }
+            
         }
     }
 
