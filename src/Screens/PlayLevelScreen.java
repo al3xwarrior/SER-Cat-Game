@@ -10,6 +10,9 @@ import Level.PlayerListener;
 import Maps.DebugMap;
 import Maps.TestMap;
 import Players.Cat;
+import SpriteFont.SpriteFont;
+
+import java.awt.*;
 
 // This class is for when the platformer game is actually being played
 public class PlayLevelScreen extends Screen implements PlayerListener {
@@ -21,6 +24,8 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
     protected LevelClearedScreen levelClearedScreen;
     protected LevelLoseScreen levelLoseScreen;
     protected boolean levelCompletedStateChangeStart;
+
+    protected SpriteFont coordsDebugLabel;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -38,6 +43,9 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
 
         levelClearedScreen = new LevelClearedScreen();
         levelLoseScreen = new LevelLoseScreen(this);
+
+        // debug stuff - alex
+        this.coordsDebugLabel = new SpriteFont("X: 1 | Y: 1", 0, 0, "Times New Roman", 24, Color.WHITE);
 
         this.playLevelScreenState = PlayLevelScreenState.RUNNING;
     }
@@ -76,6 +84,8 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
             case RUNNING:
                 map.draw(graphicsHandler);
                 player.draw(graphicsHandler);
+                coordsDebugLabel.setText("X: " + player.getLocation().x + " | Y: " + player.getLocation().y);
+                coordsDebugLabel.draw(graphicsHandler);
                 break;
             case LEVEL_COMPLETED:
                 levelClearedScreen.draw(graphicsHandler);

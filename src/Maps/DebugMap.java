@@ -1,6 +1,8 @@
 package Maps;
 
+import Enemies.SquirrelEnemy;
 import Powerups.HockeyStickPowerup;
+
 import java.util.Random;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
@@ -20,7 +22,12 @@ public class DebugMap extends Map {
 
     @Override
     public ArrayList<Enemy> loadEnemies() {
-        return null;
+        ArrayList<Enemy> enemies = new ArrayList<>();
+
+        SquirrelEnemy squirrelEnemy = new SquirrelEnemy(getMapTile(7, 5).getLocation(), Direction.LEFT);
+        enemies.add(squirrelEnemy);
+
+        return enemies;
     }
 
     @Override
