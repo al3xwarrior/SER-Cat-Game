@@ -3,16 +3,30 @@ package Players;
 import Builders.FrameBuilder;
 import Engine.GraphicsHandler;
 import Engine.ImageLoader;
+import Engine.Key;
+import Engine.Keyboard;
+import Engine.KeyLocker;
 import GameObject.Frame;
 import GameObject.ImageEffect;
 import GameObject.SpriteSheet;
 import Level.Player;
 
+import java.awt.*;
 import java.util.HashMap;
 
 // This is the class for the Cat player character
 // basically just sets some values for physics and then defines animations
 public class Cat extends Player {
+
+        // stamina mechenic that is used to do enhanced movements as well as stop time
+        protected float stamina = 100f;
+        protected final float maxStamina = 100f;
+        protected final float staminaCostPercent = 25f;
+
+
+        protected final Key abilityKey = Key.SHIFT;
+
+        protected KeyLocker keyLocker = new KeyLocker();
 
     public Cat(float x, float y) {
         super(new SpriteSheet(ImageLoader.load("Cat.png"), 24, 24), x, y, "STAND_RIGHT");
@@ -22,18 +36,71 @@ public class Cat extends Player {
         terminalVelocityX = 5f;
         jumpHeight = 11.5f; // one block is euqal to 7.3f
         jumpDegrade = .5f;
-        walkSpeed = 1f;
-        momentumYIncrease = .75f;
+        walkSpeed = 3.5f;
+        momentumYIncrease = .5f;
     }
 
     public void update() {
         super.update();
+        updateStaminaAbilityInput();
     }
+
+    protected void updateStaminaAbilityInput(){
+        if (Keyboard.isKeyDown(abilityKey) && !keyLocker.isKeyLocked(abilityKey)) {
+            // Handle stamina ability input
+            useStamina(staminaCostPercent);
+            keyLocker.lockKey(abilityKey);
+        }
+
+        if (Keyboard.isKeyUp(abilityKey)){
+                keyLocker.unlockKey(abilityKey);
+        }
+        }
+
+        public void useStamina(float amount) {
+                stamina = Math.max(0f, stamina - amount);
+        }
+
+        public void gainStamina(float amount){
+                stamina = Math.min(maxStamina, stamina + amount);
+        }
+
+        public float getStamina(){
+                return stamina;
+        }
+
+        public float getMaxStamina(){
+                return maxStamina;
+        }
+        public float getStaminaPercent(){
+                return stamina / maxStamina;
+        }
 
     public void draw(GraphicsHandler graphicsHandler) {
         super.draw(graphicsHandler);
         // drawBounds(graphicsHandler, new Color(255, 0, 0, 170));
     }
+
+    public void drawStaminaBar(GraphicsHandler graphicsHandler) {
+        int barX = 15;
+        int barY = 15;
+        int barWidth = 100;
+        int barHeight = 10;
+
+        int filledWidth = (int) (barWidth * getStaminaPercent());
+
+        graphicsHandler.drawFilledRectangle(barX, barY, barWidth, barHeight, new Color(60,60,60,200));
+
+        if (filledWidth > 0) {
+                graphicsHandler.drawFilledRectangle(barX, barY, filledWidth, barHeight, new Color(80, 200, 225));
+        }
+
+        ((GraphicsHandler) graphicsHandler.drawRectangle).drawRectangle(barX, barY, barWidth, barHeight, Color.black, 2);
+}
+
+
+
+    
 
     @Override
     public HashMap<String, Frame[]> loadAnimations(SpriteSheet spriteSheet) {

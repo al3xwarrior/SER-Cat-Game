@@ -45,5 +45,10 @@ public enum Key {
     NINE,
     ZERO,
     SPACE,
-    ESC
+    ESC;
+
+    public boolean isPressed() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isPressed'");
+    }
 }

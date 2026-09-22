@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 
 public class GraphicsHandler {
     private Graphics2D g;
+    public Object drawRectangle;
 
     public Graphics2D getGraphics() {
         return g;

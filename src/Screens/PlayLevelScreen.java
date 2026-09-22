@@ -8,7 +8,6 @@ import Level.Map;
 import Level.Player;
 import Level.PlayerListener;
 import Maps.DebugMap;
-import Maps.TestMap;
 import Players.Cat;
 import SpriteFont.SpriteFont;
 
