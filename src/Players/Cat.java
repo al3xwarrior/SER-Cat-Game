@@ -18,7 +18,7 @@ public class Cat extends Player {
         super(new SpriteSheet(ImageLoader.load("Cat.png"), 24, 24), x, y, "STAND_RIGHT");
         gravity = .5f;
         baseFriction = 1.2f;
-        terminalVelocityY = 10f;
+        terminalVelocityY = 15f;
         terminalVelocityX = 5f;
         jumpHeight = 11.5f; // one block is euqal to 7.3f
         jumpDegrade = .5f;

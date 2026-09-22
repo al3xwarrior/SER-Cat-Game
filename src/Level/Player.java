@@ -26,6 +26,7 @@ public abstract class Player extends GameObject {
     protected float momentumY = 0;
     protected float momentumX = 0;
     protected float appliedFriction = 1.2f;
+    protected float dashFrames = 0;
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
 
@@ -41,7 +42,7 @@ public abstract class Player extends GameObject {
     protected ArrayList<PlayerListener> listeners = new ArrayList<>();
 
     // define keys
-    protected KeyLocker keyLocker = new KeyLocker();
+    protected KeyLocker keyLocker = new KeyLocker(); // TODO: add WASD as movement keys
     protected Key JUMP_KEY = Key.UP;
     protected Key MOVE_LEFT_KEY = Key.LEFT;
     protected Key MOVE_RIGHT_KEY = Key.RIGHT;
@@ -64,13 +65,17 @@ public abstract class Player extends GameObject {
     }
 
     public void update() {
-        if (getAirGroundState() == AirGroundState.GROUND) {
+        // if the player is grounded and they are not dashing, then we apply friction
+        // we check for the dash because we want the beginning of the dash to be more smooth and snappy, applying friction to
+        // the start of the dash will make it feel more sluggish
+        if (getAirGroundState() == AirGroundState.GROUND && playerState != PlayerState.DASHING) {
+            dashFrames = 0f;
             momentumX /= appliedFriction;
         }
 
-        if (Math.abs(momentumX) > terminalVelocityX) {
-            momentumX = terminalVelocityX * Math.signum(momentumX);
-        }
+        //if (Math.abs(momentumX) > terminalVelocityX) {
+        //    momentumX = terminalVelocityX * Math.signum(momentumX);
+        //}
 
         moveAmountX = momentumX;
         moveAmountY = 0;
@@ -133,11 +138,17 @@ public abstract class Player extends GameObject {
             case SLIDING:
                 playerSliding();
                 break;
+            case DASHING:
+                playerDashing();
+                break;
         }
     }
 
     // player STANDING state logic
     protected void playerStanding() {
+        // double check that the friction is set back to normal
+        appliedFriction = baseFriction;
+
         // if walk left or walk right key is pressed, player enters WALKING state
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
             playerState = PlayerState.WALKING;
@@ -264,9 +275,9 @@ public abstract class Player extends GameObject {
 
             // allows you to move left and right while in the air
             if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
-                momentumX -= walkSpeed / 2;
+                momentumX = (momentumX - walkSpeed) / baseFriction;
             } else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
-                momentumX += walkSpeed / 2;
+                momentumX = (momentumX + walkSpeed) / baseFriction;
             }
 
             // if player is falling, increases momentum as player falls so it falls faster over time
@@ -279,6 +290,49 @@ public abstract class Player extends GameObject {
         else if (previousAirGroundState == AirGroundState.AIR && airGroundState == AirGroundState.GROUND) {
             playerState = PlayerState.STANDING;
         }
+
+        // if, at any moment that the player is airborne, player presses the dash key, player enters DASHING state
+        if (Keyboard.isKeyDown(DASH_KEY) && !keyLocker.isKeyLocked(DASH_KEY) && dashFrames == 0f) {
+            System.out.println("Player dashed!");
+            keyLocker.lockKey(DASH_KEY);
+            playerState = PlayerState.DASHING;
+        }
+    }
+
+    // player DASHNG logic
+    protected void playerDashing() {
+        // if this is true, then we still need to apply the dash
+        if (dashFrames == 0f) {
+            airGroundState = AirGroundState.AIR;
+            jumpForce = 0f;
+
+            int xDir;
+            int yDir;
+
+            xDir = (Keyboard.isKeyDown(MOVE_LEFT_KEY) ? -1 : 0) + (Keyboard.isKeyDown(MOVE_RIGHT_KEY) ? 1 : 0);
+            yDir = (Keyboard.isKeyDown(CROUCH_KEY) ? -1 : 0) + (Keyboard.isKeyDown(JUMP_KEY) ? 1 : 0);
+            
+            momentumX = 15 * xDir;
+            momentumY = -15 * yDir;
+
+            dashFrames = 7f;
+        }
+
+        else if (airGroundState == AirGroundState.GROUND) {
+            dashFrames = 0f;
+            momentumY = 0f;
+            playerState = PlayerState.STANDING;
+        }
+
+        else if (dashFrames > 1f) {
+            dashFrames--;
+        }
+
+        else if (dashFrames == 1f) {
+            jumpForce = (momentumY < 0) ? momentumY * -0.5f : 0f;
+            momentumY = 0f;
+            playerState = PlayerState.JUMPING;
+        }
     }
 
     // while player is in air, this is called, and will increase momentumY by a set amount until player reaches terminal velocity
@@ -290,6 +344,10 @@ public abstract class Player extends GameObject {
     }
 
     protected void updateLockedKeys() {
+        if (Keyboard.isKeyUp(DASH_KEY)) {
+            keyLocker.unlockKey(DASH_KEY);
+        }
+        
         if (Keyboard.isKeyUp(JUMP_KEY)) {
             keyLocker.unlockKey(JUMP_KEY);
         }
@@ -339,7 +397,7 @@ public abstract class Player extends GameObject {
             if (hasCollided) {
                 momentumY = 0;
                 airGroundState = AirGroundState.GROUND;
-            } else {
+            } else if (dashFrames == 0) {
                 playerState = PlayerState.JUMPING;
                 airGroundState = AirGroundState.AIR;
             }
