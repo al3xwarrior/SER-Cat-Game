@@ -34,6 +34,9 @@ public class GameObject extends AnimatedSprite {
     // the map instance this game object "belongs" to.
     protected Map map;
 
+    // if set, this game object's sprite is drawn tinted with this color (e.g. to show an active power-up)
+    protected Color tintColor = null;
+
 
     public GameObject(SpriteSheet spriteSheet, float x, float y, String startingAnimation) {
         super(spriteSheet, x, y, startingAnimation);
@@ -316,6 +319,14 @@ public class GameObject extends AnimatedSprite {
         this.map = map;
     }
 
+    public Color getTintColor() {
+        return tintColor;
+    }
+
+    public void setTintColor(Color tintColor) {
+        this.tintColor = tintColor;
+    }
+
     @Override
     public void draw(GraphicsHandler graphicsHandler) {
         if (map != null) {
@@ -325,7 +336,8 @@ public class GameObject extends AnimatedSprite {
                 Math.round(getCalibratedYLocation()),
                 currentFrame.getWidth(),
                 currentFrame.getHeight(),
-                currentFrame.getImageEffect());
+                currentFrame.getImageEffect(),
+                tintColor);
         } else {
             super.draw(graphicsHandler);
         }
