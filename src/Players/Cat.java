@@ -45,7 +45,7 @@ public class Cat extends Player {
         updateStaminaAbilityInput();
     }
 
-    protected void updateStaminaAbilityInput(){
+    public void updateStaminaAbilityInput(){
         if (Keyboard.isKeyDown(abilityKey) && !keyLocker.isKeyLocked(abilityKey)) {
             // Handle stamina ability input
             useStamina(staminaCostPercent);
@@ -58,7 +58,7 @@ public class Cat extends Player {
         }
 
         public void useStamina(float amount) {
-                stamina = Math.max(0f, stamina - amount);
+                stamina = Math.max(25f, stamina - amount);
         }
 
         public void gainStamina(float amount){
@@ -82,8 +82,8 @@ public class Cat extends Player {
     }
 
     public void drawStaminaBar(GraphicsHandler graphicsHandler) {
-        int barX = 15;
-        int barY = 15;
+        int barX = 35;
+        int barY = 35;
         int barWidth = 100;
         int barHeight = 10;
 
@@ -95,7 +95,7 @@ public class Cat extends Player {
                 graphicsHandler.drawFilledRectangle(barX, barY, filledWidth, barHeight, new Color(80, 200, 225));
         }
 
-        ((GraphicsHandler) graphicsHandler.drawRectangle).drawRectangle(barX, barY, barWidth, barHeight, Color.black, 2);
+        graphicsHandler.drawRectangle(barX, barY, barWidth, barHeight, Color.black, 2);
 }
 
 
