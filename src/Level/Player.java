@@ -85,6 +85,8 @@ public abstract class Player extends GameObject {
             momentumX /= appliedFriction;
         }
 
+        IO.println(momentumX);
+
         //if (Math.abs(momentumX) > terminalVelocityX) {
         //    momentumX = terminalVelocityX * Math.signum(momentumX);
         //}
@@ -289,9 +291,23 @@ public abstract class Player extends GameObject {
 
             // allows you to move left and right while in the air
             if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
-                momentumX = (momentumX - walkSpeed) / baseFriction;
+                // if you're trying moving in the same direction as your momentum
+                if (momentumX < 0) {
+                    // if your momentum is lower than what it would be if you tried to move in that direction
+                    if (Math.abs(momentumX) < 5f) {
+                        momentumX = (momentumX - walkSpeed) / baseFriction;
+                    }
+                } else {
+                    momentumX = (momentumX - walkSpeed) / baseFriction;
+                }
             } else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
-                momentumX = (momentumX + walkSpeed) / baseFriction;
+                if (momentumX > 0) {
+                    if (Math.abs(momentumX) < 5f) {
+                        momentumX = (momentumX + walkSpeed) / baseFriction;
+                    }
+                } else {
+                    momentumX = (momentumX + walkSpeed) / baseFriction;
+                }
             }
 
             // if player is falling, increases momentum as player falls so it falls faster over time
