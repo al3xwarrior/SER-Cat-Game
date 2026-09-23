@@ -47,8 +47,5 @@ public enum Key {
     SPACE,
     ESC;
 
-    public boolean isPressed() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isPressed'");
-    }
+ 
 }

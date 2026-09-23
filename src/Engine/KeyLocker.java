@@ -24,8 +24,5 @@ public class KeyLocker {
         return lockedKeys.contains(key);
     }
 
-    public boolean isLocked() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'isLocked'");
-    }
+
 }

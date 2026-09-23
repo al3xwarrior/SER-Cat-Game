@@ -23,7 +23,7 @@ public class Cat extends Player {
         protected final float maxStamina = 100f;
         protected final float staminaCostPercent = 25f;
 
-
+// key to activate the stamina ability
         protected final Key abilityKey = Key.SHIFT;
 
         protected KeyLocker keyLocker = new KeyLocker();
