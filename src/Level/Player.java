@@ -85,8 +85,6 @@ public abstract class Player extends GameObject {
             momentumX /= appliedFriction;
         }
 
-        IO.println(momentumX);
-
         //if (Math.abs(momentumX) > terminalVelocityX) {
         //    momentumX = terminalVelocityX * Math.signum(momentumX);
         //}
