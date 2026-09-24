@@ -155,6 +155,9 @@ public abstract class Player extends GameObject {
             case DASHING:
                 playerDashing();
                 break;
+            case POUNCING:
+                playerPouncing();
+                break;
         }
     }
 
@@ -325,6 +328,25 @@ public abstract class Player extends GameObject {
             keyLocker.lockKey(DASH_KEY);
             playerState = PlayerState.DASHING;
         }
+
+        // if, at any moment that the player is airborne, player presses the pounce key, player enters POUNCING state
+        if (Keyboard.isKeyDown(POUNCE_KEY) && !keyLocker.isKeyLocked(POUNCE_KEY)) {
+            System.out.println("Player pounced!");
+            keyLocker.lockKey(POUNCE_KEY);
+            playerState = PlayerState.POUNCING;
+        }
+    }
+
+    // player POUNCING logic
+    protected void playerPouncing() {
+        float modifier = facingDirection == Direction.RIGHT ? 1 : -1;
+
+        momentumX = 10 * modifier;
+        momentumY = 10;
+
+        if (airGroundState == AirGroundState.GROUND) {
+            playerState = PlayerState.STANDING;
+        }
     }
 
     // player DASHNG logic
@@ -350,6 +372,12 @@ public abstract class Player extends GameObject {
             dashFrames = 0f;
             momentumY = 0f;
             playerState = PlayerState.STANDING;
+        }
+
+        else if (Keyboard.isKeyDown(POUNCE_KEY) && !keyLocker.isKeyLocked(POUNCE_KEY)) {
+            System.out.println("Player pounced!");
+            keyLocker.lockKey(POUNCE_KEY);
+            playerState = PlayerState.POUNCING;
         }
 
         else if (dashFrames > 1f) {
@@ -378,6 +406,10 @@ public abstract class Player extends GameObject {
         
         if (Keyboard.isKeyUp(JUMP_KEY)) {
             keyLocker.unlockKey(JUMP_KEY);
+        }
+
+        if (Keyboard.isKeyUp(POUNCE_KEY)) {
+            keyLocker.unlockKey(POUNCE_KEY);
         }
     }
 
@@ -425,7 +457,7 @@ public abstract class Player extends GameObject {
             if (hasCollided) {
                 momentumY = 0;
                 airGroundState = AirGroundState.GROUND;
-            } else if (dashFrames == 0) {
+            } else if (dashFrames == 0 && playerState != PlayerState.POUNCING) {
                 playerState = PlayerState.JUMPING;
                 airGroundState = AirGroundState.AIR;
             }
