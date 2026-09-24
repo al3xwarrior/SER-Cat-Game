@@ -36,7 +36,7 @@ public class Cat extends Player {
         terminalVelocityX = 5f;
         jumpHeight = 11.5f; // one block is euqal to 7.3f
         jumpDegrade = .5f;
-        walkSpeed = 3.5f;
+        walkSpeed = 1f;
         momentumYIncrease = .5f;
     }
 
