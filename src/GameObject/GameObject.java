@@ -5,7 +5,6 @@ import Level.*;
 import Utils.Direction;
 import Utils.ImageUtils;
 import Utils.MathUtils;
-
 import java.awt.*;
 import java.util.HashMap;
 
@@ -336,6 +335,21 @@ public class GameObject extends AnimatedSprite {
                 Math.round(getCalibratedYLocation()),
                 currentFrame.getWidth(),
                 currentFrame.getHeight(),
+                currentFrame.getImageEffect(),
+                tintColor);
+        } else {
+            super.draw(graphicsHandler);
+        }
+    }
+
+    public void drawSquashStretch(GraphicsHandler graphicsHandler, int squash, int stretch) {
+        if (map != null) {
+            graphicsHandler.drawImage(
+                currentFrame.getImage(),
+                Math.round(getCalibratedXLocation() - squash / 2),
+                Math.round(getCalibratedYLocation() - stretch / 2),
+                currentFrame.getWidth() + squash,
+                currentFrame.getHeight() + stretch,
                 currentFrame.getImageEffect(),
                 tintColor);
         } else {

@@ -46,14 +46,14 @@ public abstract class Player extends GameObject {
     protected ArrayList<PlayerListener> listeners = new ArrayList<>();
 
     // define keys
-    protected KeyLocker keyLocker = new KeyLocker(); // TODO: add WASD as movement keys
-    protected Key JUMP_KEY = Key.UP;
-    protected Key MOVE_LEFT_KEY = Key.LEFT;
-    protected Key MOVE_RIGHT_KEY = Key.RIGHT;
-    protected Key CROUCH_KEY = Key.DOWN;
+    protected KeyLocker keyLocker = new KeyLocker();
+    protected Key JUMP_KEY = Key.W;
+    protected Key MOVE_LEFT_KEY = Key.A;
+    protected Key MOVE_RIGHT_KEY = Key.D;
+    protected Key CROUCH_KEY = Key.S;
 
-    protected Key DASH_KEY = Key.Z;
-    protected Key POUNCE_KEY = Key.X;
+    protected Key DASH_KEY = Key.J;
+    protected Key POUNCE_KEY = Key.K;
 
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
@@ -232,7 +232,7 @@ public abstract class Player extends GameObject {
 
     // player SLIDING state logic
     protected void playerSliding() {
-        appliedFriction = 1.025f; // TODO this probably shouldnt be hardcoded?
+        appliedFriction = (float) (baseFriction / 1.17);
 
         // if crouch key is released, player enters STANDING state
         if (Keyboard.isKeyUp(CROUCH_KEY)) {
@@ -600,7 +600,11 @@ public abstract class Player extends GameObject {
 
     @Override
     public void draw(GraphicsHandler graphicsHandler) {
-        super.draw(graphicsHandler);
+        if (airGroundState == AirGroundState.AIR) {
+            super.drawSquashStretch(graphicsHandler, -(int) Math.abs(moveAmountY), (int) Math.abs(moveAmountY) - ((int) Math.abs(moveAmountX)));
+        } else {
+            super.draw(graphicsHandler);
+        }
 
         // draws whatever item the player currently has equipped (e.g. a power-up's hockey stick) just in front of the player, facing the same direction
         if (equippedItemImage != null) {
