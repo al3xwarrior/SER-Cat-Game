@@ -34,6 +34,12 @@ public abstract class Player extends GameObject {
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
 
+    // values that are used when drawing player
+    protected int squash = 0;
+    protected int stretch = 0;
+    protected double squashOffset = 0;
+    protected double stretchOffset = 0;
+
     // values used to keep track of player's current state
     protected PlayerState playerState;
     protected PlayerState previousPlayerState;
@@ -83,6 +89,14 @@ public abstract class Player extends GameObject {
         if (getAirGroundState() == AirGroundState.GROUND && playerState != PlayerState.DASHING) {
             dashFrames = 0f;
             momentumX /= appliedFriction;
+        }
+
+        if (squash > 0) {
+            squash -= 1;
+        }
+        
+        if (stretch < 0) {
+            stretch += 1;
         }
 
         //if (Math.abs(momentumX) > terminalVelocityX) {
@@ -165,6 +179,13 @@ public abstract class Player extends GameObject {
     protected void playerStanding() {
         // double check that the friction is set back to normal
         appliedFriction = baseFriction;
+
+        if (previousAirGroundState == AirGroundState.AIR) { 
+            squash = 15;
+            stretch = -15;
+            squashOffset = 0.5;
+            stretchOffset = 1;
+        }
 
         // if walk left or walk right key is pressed, player enters WALKING state
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
@@ -531,6 +552,8 @@ public abstract class Player extends GameObject {
         }
         // move player to the right until it walks off screen
         else if (map.getCamera().containsDraw(this)) {
+            squash = 0;
+            stretch = 0;
             currentAnimationName = "WALK_RIGHT";
             super.update();
             moveXHandleCollision(walkSpeed * 3);
@@ -544,6 +567,8 @@ public abstract class Player extends GameObject {
 
     // if player has died, this will be the update cycle
     public void updatePlayerDead() {
+        squash = 0;
+        stretch = 0;
         // change player animation to DEATH
         if (!currentAnimationName.startsWith("DEATH")) {
             if (facingDirection == Direction.RIGHT) {
@@ -601,10 +626,13 @@ public abstract class Player extends GameObject {
     @Override
     public void draw(GraphicsHandler graphicsHandler) {
         if (airGroundState == AirGroundState.AIR) {
-            super.drawSquashStretch(graphicsHandler, -(int) Math.abs(moveAmountY), (int) Math.abs(moveAmountY) - ((int) Math.abs(moveAmountX)));
-        } else {
-            super.draw(graphicsHandler);
+            squashOffset = 0.5;
+            stretchOffset = 0.5;
+            squash = -(int) Math.abs(moveAmountY);
+            stretch = (int) Math.abs(moveAmountY) - ((int) Math.abs(moveAmountX));
         }
+
+        super.drawSquashStretch(graphicsHandler, squash, stretch, squashOffset, stretchOffset);
 
         // draws whatever item the player currently has equipped (e.g. a power-up's hockey stick) just in front of the player, facing the same direction
         if (equippedItemImage != null) {

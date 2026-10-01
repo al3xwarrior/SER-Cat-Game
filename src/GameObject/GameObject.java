@@ -342,12 +342,13 @@ public class GameObject extends AnimatedSprite {
         }
     }
 
-    public void drawSquashStretch(GraphicsHandler graphicsHandler, int squash, int stretch) {
+    // this dra
+    public void drawSquashStretch(GraphicsHandler graphicsHandler, int squash, int stretch, double squashOffset, double  stretchOffset) {
         if (map != null) {
             graphicsHandler.drawImage(
                 currentFrame.getImage(),
-                Math.round(getCalibratedXLocation() - squash / 2),
-                Math.round(getCalibratedYLocation() - stretch / 2),
+                Math.round(getCalibratedXLocation() - (long) (squash * squashOffset)),
+                Math.round(getCalibratedYLocation() - (long) (stretch * stretchOffset)),
                 currentFrame.getWidth() + squash,
                 currentFrame.getHeight() + stretch,
                 currentFrame.getImageEffect(),
