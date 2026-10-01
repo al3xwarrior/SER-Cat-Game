@@ -8,6 +8,7 @@ import Level.Map;
 import Level.Player;
 import Level.PlayerListener;
 import Maps.DebugMap;
+import Maps.Level1Map;
 import Players.Cat;
 import SpriteFont.SpriteFont;
 
@@ -32,7 +33,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
 
     public void initialize() {
         // define/setup map
-//        this.map = new TestMap();
+        // this.map = new Level1Map(); // if you want to see level 1 - Alex
         this.map = new DebugMap();
 
         // setup player

@@ -1,5 +1,7 @@
 package Maps;
 
+import Enemies.BearEnemy;
+import Enemies.BirdEnemy;
 import Enemies.SquirrelEnemy;
 import Powerups.HockeyStickPowerup;
 
@@ -27,6 +29,12 @@ public class DebugMap extends Map {
         SquirrelEnemy squirrelEnemy = new SquirrelEnemy(getMapTile(7, 5).getLocation(), Direction.LEFT);
         enemies.add(squirrelEnemy);
 
+        BirdEnemy birdEnemy = new BirdEnemy(getMapTile(8, 7).getLocation(), Direction.LEFT);
+        enemies.add(birdEnemy);
+
+        BearEnemy bearEnemy = new BearEnemy(getMapTile(15, 10).getLocation(), getMapTile(23, 10).getLocation(), Direction.RIGHT);
+        enemies.add(bearEnemy);
+
         return enemies;
     }
 
@@ -45,7 +53,7 @@ public class DebugMap extends Map {
         );
         enhancedMapTiles.add(hmp);
 
-        EndLevelBox endLevelBox = new EndLevelBox(getMapTile(32, 7).getLocation());
+        EndLevelBox endLevelBox = new EndLevelBox(getMapTile(49, 7).getLocation());
         enhancedMapTiles.add(endLevelBox);
 
         int numberOfPowerups = 5;
