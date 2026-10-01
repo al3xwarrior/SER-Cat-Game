@@ -34,6 +34,12 @@ public abstract class Player extends GameObject {
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
 
+    // values that are used when drawing player
+    protected int squash = 0;
+    protected int stretch = 0;
+    protected double squashOffset = 0;
+    protected double stretchOffset = 0;
+
     // values used to keep track of player's current state
     protected PlayerState playerState;
     protected PlayerState previousPlayerState;
@@ -46,14 +52,14 @@ public abstract class Player extends GameObject {
     protected ArrayList<PlayerListener> listeners = new ArrayList<>();
 
     // define keys
-    protected KeyLocker keyLocker = new KeyLocker(); // TODO: add WASD as movement keys
-    protected Key JUMP_KEY = Key.UP;
-    protected Key MOVE_LEFT_KEY = Key.LEFT;
-    protected Key MOVE_RIGHT_KEY = Key.RIGHT;
-    protected Key CROUCH_KEY = Key.DOWN;
+    protected KeyLocker keyLocker = new KeyLocker();
+    protected Key JUMP_KEY = Key.W;
+    protected Key MOVE_LEFT_KEY = Key.A;
+    protected Key MOVE_RIGHT_KEY = Key.D;
+    protected Key CROUCH_KEY = Key.S;
 
-    protected Key DASH_KEY = Key.Z;
-    protected Key POUNCE_KEY = Key.X;
+    protected Key DASH_KEY = Key.J;
+    protected Key POUNCE_KEY = Key.K;
 
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
@@ -83,6 +89,14 @@ public abstract class Player extends GameObject {
         if (getAirGroundState() == AirGroundState.GROUND && playerState != PlayerState.DASHING) {
             dashFrames = 0f;
             momentumX /= appliedFriction;
+        }
+
+        if (squash > 0) {
+            squash -= 1;
+        }
+        
+        if (stretch < 0) {
+            stretch += 1;
         }
 
         //if (Math.abs(momentumX) > terminalVelocityX) {
@@ -166,6 +180,13 @@ public abstract class Player extends GameObject {
         // double check that the friction is set back to normal
         appliedFriction = baseFriction;
 
+        if (previousAirGroundState == AirGroundState.AIR) { 
+            squash = 15;
+            stretch = -15;
+            squashOffset = 0.5;
+            stretchOffset = 1;
+        }
+
         // if walk left or walk right key is pressed, player enters WALKING state
         if (Keyboard.isKeyDown(MOVE_LEFT_KEY) || Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
             playerState = PlayerState.WALKING;
@@ -232,7 +253,7 @@ public abstract class Player extends GameObject {
 
     // player SLIDING state logic
     protected void playerSliding() {
-        appliedFriction = 1.025f; // TODO this probably shouldnt be hardcoded?
+        appliedFriction = (float) (baseFriction / 1.17);
 
         // if crouch key is released, player enters STANDING state
         if (Keyboard.isKeyUp(CROUCH_KEY)) {
@@ -531,6 +552,8 @@ public abstract class Player extends GameObject {
         }
         // move player to the right until it walks off screen
         else if (map.getCamera().containsDraw(this)) {
+            squash = 0;
+            stretch = 0;
             currentAnimationName = "WALK_RIGHT";
             super.update();
             moveXHandleCollision(walkSpeed * 3);
@@ -544,6 +567,8 @@ public abstract class Player extends GameObject {
 
     // if player has died, this will be the update cycle
     public void updatePlayerDead() {
+        squash = 0;
+        stretch = 0;
         // change player animation to DEATH
         if (!currentAnimationName.startsWith("DEATH")) {
             if (facingDirection == Direction.RIGHT) {
@@ -600,7 +625,14 @@ public abstract class Player extends GameObject {
 
     @Override
     public void draw(GraphicsHandler graphicsHandler) {
-        super.draw(graphicsHandler);
+        if (airGroundState == AirGroundState.AIR) {
+            squashOffset = 0.5;
+            stretchOffset = 0.5;
+            squash = -(int) Math.abs(moveAmountY);
+            stretch = (int) Math.abs(moveAmountY) - ((int) Math.abs(moveAmountX));
+        }
+
+        super.drawSquashStretch(graphicsHandler, squash, stretch, squashOffset, stretchOffset);
 
         // draws whatever item the player currently has equipped (e.g. a power-up's hockey stick) just in front of the player, facing the same direction
         if (equippedItemImage != null) {
