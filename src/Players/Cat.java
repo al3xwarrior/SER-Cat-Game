@@ -1,6 +1,7 @@
 package Players;
 
 import Builders.FrameBuilder;
+import Engine.Config;
 import Engine.GraphicsHandler;
 import Engine.ImageLoader;
 import Engine.Key;
@@ -22,6 +23,13 @@ public class Cat extends Player {
         protected float stamina = 100f;
         protected final float maxStamina = 100f;
         protected final float staminaCostPercent = 25f;
+
+// stamina regeneration, refills from empty to full in staminaRegenSeconds, after a short delay since stamina was last used
+        protected final float staminaRegenSeconds = 8f;
+        protected final float staminaRegenPerFrame = maxStamina / (staminaRegenSeconds * Config.TARGET_FPS);
+        protected final int staminaRegenDelayFrames = Config.TARGET_FPS; // 1 second after a movement ability
+        protected final int timeWarpRegenDelayFrames = Config.TARGET_FPS * 3; // 3 seconds after the time warp ends
+        protected int regenDelayFramesRemaining = 0;
 
 // key to activate the stamina ability
         protected final Key abilityKey = Key.SHIFT;
@@ -51,6 +59,7 @@ public class Cat extends Player {
         super.update();
         updateStaminaAbilityInput();
         updateTimeWarpTimer();
+        updateStaminaRegen();
     }
 
     @Override
@@ -63,14 +72,27 @@ public class Cat extends Player {
             timeWarpFramesRemaining--;
             if (timeWarpFramesRemaining <= 0) {
                 setTimeWarping(false);
+                regenDelayFramesRemaining = timeWarpRegenDelayFrames;
             }
+        }
+    }
+
+    // stamina does not regenerate while time warping, otherwise the time warp would pay for itself
+    public void updateStaminaRegen() {
+        if (isTimeWarping()) {
+            return;
+        }
+
+        if (regenDelayFramesRemaining > 0) {
+            regenDelayFramesRemaining--;
+        } else {
+            gainStamina(staminaRegenPerFrame);
         }
     }
 
     public void updateStaminaAbilityInput() {
         if (Keyboard.isKeyDown(abilityKey) && !keyLocker.isKeyLocked(abilityKey)) {
-            if (timeWarpFramesRemaining <= 0 && stamina >= staminaCostPercent) {
-                useStamina(staminaCostPercent);
+            if (timeWarpFramesRemaining <= 0 && useStamina(staminaCostPercent)) {
                 setTimeWarping(true);
                 timeWarpFramesRemaining = timeWarpDuration;
                 keyLocker.lockKey(abilityKey);
@@ -83,11 +105,12 @@ public class Cat extends Player {
     }
 
         public boolean useStamina(float amount) {
-                if (stamina - amount <= 0f) {
+                if (stamina - amount < 0f) {
                         return false;
                 }
 
                 stamina = Math.max(0f, stamina - amount);
+                regenDelayFramesRemaining = Math.max(regenDelayFramesRemaining, staminaRegenDelayFrames);
                 return true;
         }
 
