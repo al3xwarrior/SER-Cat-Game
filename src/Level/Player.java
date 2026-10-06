@@ -94,8 +94,6 @@ public abstract class Player extends GameObject {
         isTimeWarping = timeWarping;
     }
 
-
-
     public void update() {
         // if the player is grounded and they are not dashing, then we apply friction
         // we check for the dash because we want the beginning of the dash to be more smooth and snappy, applying friction to
@@ -393,10 +391,12 @@ public abstract class Player extends GameObject {
     protected void playerPouncing() {
         float modifier = facingDirection == Direction.RIGHT ? 1 : -1;
 
-        momentumX = 10 * modifier;
-        momentumY = 10;
+        jumpForce = 0f;
+        momentumX = 10f * modifier;
+        momentumY = 10f;
 
         if (airGroundState == AirGroundState.GROUND) {
+            makeInvincible(Math.max(30, invincibilityFramesRemaining));
             playerState = PlayerState.STANDING;
         }
     }
@@ -410,8 +410,10 @@ public abstract class Player extends GameObject {
 
             float modifier = facingDirection == Direction.RIGHT ? 1 : -1;
 
-            momentumX += 3 * modifier;
-            momentumY = -7;
+            jumpForce = 0f;
+
+            momentumX += 3f * modifier;
+            momentumY = -7f;
         }
 
         else if (airGroundState == AirGroundState.GROUND) {
@@ -435,8 +437,8 @@ public abstract class Player extends GameObject {
             xDir = (Keyboard.isKeyDown(MOVE_LEFT_KEY) ? -1 : 0) + (Keyboard.isKeyDown(MOVE_RIGHT_KEY) ? 1 : 0);
             yDir = (Keyboard.isKeyDown(CROUCH_KEY) ? -1 : 0) + (Keyboard.isKeyDown(JUMP_KEY) ? 1 : 0);
             
-            momentumX = 15 * xDir;
-            momentumY = -15 * yDir;
+            momentumX = 15f * xDir;
+            momentumY = -15f * yDir;
 
             stateFrames = 7f;
         }
@@ -556,6 +558,19 @@ public abstract class Player extends GameObject {
                 levelState = LevelState.PLAYER_DEAD;
             }
         }
+    }
+
+    // this is called by other entities if the player hurts the entity
+    public void hitEnemy(MapEntity mapEntity) {
+        playerState = PlayerState.JUMPING;
+
+        stateFrames = 0f;
+
+        momentumX = 0f;
+        momentumY = 0f;
+        jumpForce = 10f;
+
+        makeInvincible(invincibilityFramesRemaining + 60);
     }
 
     // makes the player invincible (immune to hurtPlayer) for the given number of frames, and gives it the invincibility glow
