@@ -53,6 +53,11 @@ public class Cat extends Player {
         updateTimeWarpTimer();
     }
 
+    @Override
+    protected boolean consumeStamina(float amount) {
+        return useStamina(amount);
+    }
+
     public void updateTimeWarpTimer() {
         if (isTimeWarping()) {
             timeWarpFramesRemaining--;
@@ -77,8 +82,13 @@ public class Cat extends Player {
         }
     }
 
-        public void useStamina(float amount) {
+        public boolean useStamina(float amount) {
+                if (stamina - amount <= 0f) {
+                        return false;
+                }
+
                 stamina = Math.max(0f, stamina - amount);
+                return true;
         }
 
         public void gainStamina(float amount){

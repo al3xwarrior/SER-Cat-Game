@@ -30,9 +30,11 @@ public abstract class Player extends GameObject {
     protected float momentumY = 0;
     protected float momentumX = 0;
     protected float appliedFriction = 1.2f;
-    protected float dashFrames = 0;
+    protected float stateFrames = 0;
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
+
+    protected boolean needToDive = false;
 
     // values that are used when drawing player
     protected int squash = 0;
@@ -60,6 +62,7 @@ public abstract class Player extends GameObject {
 
     protected Key DASH_KEY = Key.J;
     protected Key POUNCE_KEY = Key.K;
+    protected Key DIVE_KEY = Key.L;
 
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
@@ -98,7 +101,7 @@ public abstract class Player extends GameObject {
         // we check for the dash because we want the beginning of the dash to be more smooth and snappy, applying friction to
         // the start of the dash will make it feel more sluggish
         if (getAirGroundState() == AirGroundState.GROUND && playerState != PlayerState.DASHING) {
-            dashFrames = 0f;
+            stateFrames = 0f;
             momentumX /= appliedFriction;
         }
 
@@ -182,6 +185,9 @@ public abstract class Player extends GameObject {
                 break;
             case POUNCING:
                 playerPouncing();
+                break;
+            case DIVING:
+                playerDiving();
                 break;
         }
     }
@@ -355,17 +361,31 @@ public abstract class Player extends GameObject {
         }
 
         // if, at any moment that the player is airborne, player presses the dash key, player enters DASHING state
-        if (Keyboard.isKeyDown(DASH_KEY) && !keyLocker.isKeyLocked(DASH_KEY) && dashFrames == 0f) {
-            System.out.println("Player dashed!");
-            keyLocker.lockKey(DASH_KEY);
-            playerState = PlayerState.DASHING;
+        if (Keyboard.isKeyDown(DASH_KEY) && !keyLocker.isKeyLocked(DASH_KEY) && stateFrames == 0f) {
+            if (consumeStamina(5f)) {
+                System.out.println("Player dashed!");
+                keyLocker.lockKey(DASH_KEY);
+                playerState = PlayerState.DASHING;
+            }
         }
 
         // if, at any moment that the player is airborne, player presses the pounce key, player enters POUNCING state
         if (Keyboard.isKeyDown(POUNCE_KEY) && !keyLocker.isKeyLocked(POUNCE_KEY)) {
-            System.out.println("Player pounced!");
-            keyLocker.lockKey(POUNCE_KEY);
-            playerState = PlayerState.POUNCING;
+            if (consumeStamina(10f)) {
+                System.out.println("Player pounced!");
+                keyLocker.lockKey(POUNCE_KEY);
+                playerState = PlayerState.POUNCING;
+            }
+        }
+
+        // if the player presses the dive key, player enters DIVING state
+        if (Keyboard.isKeyDown(DIVE_KEY) && !keyLocker.isKeyLocked(DIVE_KEY)) {
+            if (consumeStamina(10f)) {
+                System.out.println("Player dived!");
+                keyLocker.lockKey(DIVE_KEY);
+                needToDive = true;
+                playerState = PlayerState.DIVING;
+            }
         }
     }
 
@@ -381,10 +401,31 @@ public abstract class Player extends GameObject {
         }
     }
 
+    // player DIVING logic
+    protected void playerDiving() {
+        if (needToDive == true) {
+            needToDive = false;
+
+            airGroundState = AirGroundState.AIR;
+
+            float modifier = facingDirection == Direction.RIGHT ? 1 : -1;
+
+            momentumX += 3 * modifier;
+            momentumY = -7;
+        }
+
+        else if (airGroundState == AirGroundState.GROUND) {
+            stateFrames = 0f;
+            playerState = PlayerState.STANDING;
+        }
+
+        momentumY += gravity;
+    }
+
     // player DASHNG logic
     protected void playerDashing() {
         // if this is true, then we still need to apply the dash
-        if (dashFrames == 0f) {
+        if (stateFrames == 0f) {
             airGroundState = AirGroundState.AIR;
             jumpForce = 0f;
 
@@ -397,11 +438,11 @@ public abstract class Player extends GameObject {
             momentumX = 15 * xDir;
             momentumY = -15 * yDir;
 
-            dashFrames = 7f;
+            stateFrames = 7f;
         }
 
         else if (airGroundState == AirGroundState.GROUND) {
-            dashFrames = 0f;
+            stateFrames = 0f;
             momentumY = 0f;
             playerState = PlayerState.STANDING;
         }
@@ -412,11 +453,11 @@ public abstract class Player extends GameObject {
             playerState = PlayerState.POUNCING;
         }
 
-        else if (dashFrames > 1f) {
-            dashFrames--;
+        else if (stateFrames > 1f) {
+            stateFrames--;
         }
 
-        else if (dashFrames == 1f) {
+        else if (stateFrames == 1f) {
             jumpForce = (momentumY < 0) ? momentumY * -0.5f : 0f;
             momentumY = 0f;
             playerState = PlayerState.JUMPING;
@@ -442,6 +483,10 @@ public abstract class Player extends GameObject {
 
         if (Keyboard.isKeyUp(POUNCE_KEY)) {
             keyLocker.unlockKey(POUNCE_KEY);
+        }
+
+        if (Keyboard.isKeyUp(DIVE_KEY)) {
+            keyLocker.unlockKey(DIVE_KEY);
         }
     }
 
@@ -489,7 +534,7 @@ public abstract class Player extends GameObject {
             if (hasCollided) {
                 momentumY = 0;
                 airGroundState = AirGroundState.GROUND;
-            } else if (dashFrames == 0 && playerState != PlayerState.POUNCING) {
+            } else if (stateFrames == 0 && playerState != PlayerState.POUNCING && playerState != PlayerState.DIVING) {
                 playerState = PlayerState.JUMPING;
                 airGroundState = AirGroundState.AIR;
             }
@@ -546,6 +591,9 @@ public abstract class Player extends GameObject {
         this.equippedItemImage = null;
     }
 
+    // this exists to be overridden by the Cat class in order to let movement abilities use stamina
+    protected boolean consumeStamina(float amount) { return false; }
+
     // other entities can call this to tell the player they beat a level
     public void completeLevel() {
         levelState = LevelState.LEVEL_COMPLETED;
@@ -578,8 +626,6 @@ public abstract class Player extends GameObject {
 
     // if player has died, this will be the update cycle
     public void updatePlayerDead() {
-        squash = 0;
-        stretch = 0;
         // change player animation to DEATH
         if (!currentAnimationName.startsWith("DEATH")) {
             if (facingDirection == Direction.RIGHT) {
@@ -595,6 +641,9 @@ public abstract class Player extends GameObject {
         }
         // if death animation on last frame (it is set up not to loop back to start), player should continually fall until it goes off screen
         else if (currentFrameIndex == getCurrentAnimation().length - 1) {
+            squash = 0;
+            stretch = 0;
+
             if (map.getCamera().containsDraw(this)) {
                 moveY(3);
             } else {
