@@ -28,6 +28,13 @@ public class Cat extends Player {
 
         protected KeyLocker keyLocker = new KeyLocker();
 
+// Time warping ability, will allow the cat to slow down the entire stage
+        protected final int timeWarpDuration = 420; // last around 7 seconds if ran at 60 fps
+
+        protected int timeWarpFramesRemaining = 0;
+
+
+
     public Cat(float x, float y) {
         super(new SpriteSheet(ImageLoader.load("Cat.png"), 24, 24), x, y, "STAND_RIGHT");
         gravity = .5f;
@@ -43,22 +50,35 @@ public class Cat extends Player {
     public void update() {
         super.update();
         updateStaminaAbilityInput();
+        updateTimeWarpTimer();
     }
 
-    public void updateStaminaAbilityInput(){
+    public void updateTimeWarpTimer() {
+        if (isTimeWarping()) {
+            timeWarpFramesRemaining--;
+            if (timeWarpFramesRemaining <= 0) {
+                setTimeWarping(false);
+            }
+        }
+    }
+
+    public void updateStaminaAbilityInput() {
         if (Keyboard.isKeyDown(abilityKey) && !keyLocker.isKeyLocked(abilityKey)) {
-            // Handle stamina ability input
-            useStamina(staminaCostPercent);
-            keyLocker.lockKey(abilityKey);
+            if (timeWarpFramesRemaining <= 0 && stamina >= staminaCostPercent) {
+                useStamina(staminaCostPercent);
+                setTimeWarping(true);
+                timeWarpFramesRemaining = timeWarpDuration;
+                keyLocker.lockKey(abilityKey);
+            }
         }
 
-        if (Keyboard.isKeyUp(abilityKey)){
-                keyLocker.unlockKey(abilityKey);
+        if (Keyboard.isKeyUp(abilityKey)) {
+            keyLocker.unlockKey(abilityKey);
         }
-        }
+    }
 
         public void useStamina(float amount) {
-                stamina = Math.max(25f, stamina - amount);
+                stamina = Math.max(0f, stamina - amount);
         }
 
         public void gainStamina(float amount){

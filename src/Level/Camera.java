@@ -30,6 +30,10 @@ public class Camera extends Rectangle {
     // determines how many tiles off screen an entity can be before it will be deemed inactive and not included in the update/draw cycles until it comes back in range
     private final int UPDATE_OFF_SCREEN_RANGE = 4;
 
+    private int frameCount = 0;
+    private int TIME_WARP_SLOWDOWN_FACTOR =3;
+    
+
     public Camera(int startX, int startY, int tileWidth, int tileHeight, Map map) {
         super(startX, startY, ScreenManager.getScreenWidth() / tileWidth, ScreenManager.getScreenHeight() / tileHeight);
         this.map = map;
@@ -66,7 +70,11 @@ public class Camera extends Rectangle {
         activeEnhancedMapTiles = loadActiveEnhancedMapTiles();
         activeNPCs = loadActiveNPCs();
 
-        for (Enemy enemy : activeEnemies) {
+        frameCount++;
+        boolean shouldUpdateThisFrame = player == null || !player.isTimeWarping() || (frameCount % TIME_WARP_SLOWDOWN_FACTOR == 0);
+
+        if (shouldUpdateThisFrame) {
+            for (Enemy enemy : activeEnemies) {
             enemy.update(player);
         }
 
@@ -77,7 +85,10 @@ public class Camera extends Rectangle {
         for (NPC npc : activeNPCs) {
             npc.update(player);
         }
+
+        
     }
+}
 
     // determine which enemies are active (exist and are within range of the camera)
     private ArrayList<Enemy> loadActiveEnemies() {
@@ -190,6 +201,7 @@ public class Camera extends Rectangle {
         }
     }
 
+
     // checks if a game object's position falls within the camera's current radius
     public boolean containsUpdate(GameObject gameObject) {
         return getX1() - (tileWidth * UPDATE_OFF_SCREEN_RANGE) < gameObject.getX() + gameObject.getWidth() &&
@@ -240,5 +252,7 @@ public class Camera extends Rectangle {
     public boolean isAtLeftOfMap() {
         return this.getX() <= 0;
     }
+
+
 
 }

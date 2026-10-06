@@ -63,6 +63,7 @@ public abstract class Player extends GameObject {
 
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
+    protected boolean isTimeWarping = false; // if true, player is currently warping time
 
     // values used to handle a timed invincibility power-up (see makeInvincible)
     protected static final Color INVINCIBILITY_TINT_COLOR = new Color(130, 220, 255, 150);
@@ -81,6 +82,16 @@ public abstract class Player extends GameObject {
         previousPlayerState = playerState;
         levelState = LevelState.RUNNING;
     }
+
+    public boolean isTimeWarping() {
+       return isTimeWarping;
+    }
+
+    public void setTimeWarping(boolean timeWarping) {
+        isTimeWarping = timeWarping;
+    }
+
+
 
     public void update() {
         // if the player is grounded and they are not dashing, then we apply friction
