@@ -14,15 +14,14 @@ import Utils.Point;
 
 import java.util.HashMap;
 
-public class SquirrelEnemy extends Enemy {
-    private float gravity = 1.2f;
-    private float movementSpeed = 2.0f;
+public class BirdEnemy extends Enemy {
+    private float movementSpeed = 2.5f;
     private Direction startFacingDirection;
     private Direction facingDirection;
     private AirGroundState airGroundState;
 
-    public SquirrelEnemy(Point location, Direction facingDirection) {
-        super(location.x, location.y, 1, new SpriteSheet(ImageLoader.load("SquirrelEnemy.png"), 30, 19), "WALK_LEFT");
+    public BirdEnemy(Point location, Direction facingDirection) {
+        super(location.x, location.y, 1, new SpriteSheet(ImageLoader.load("BirdEnemy.png"), 31, 21), "WALK_LEFT");
         this.startFacingDirection = facingDirection;
         this.initialize();
     }
@@ -42,10 +41,6 @@ public class SquirrelEnemy extends Enemy {
     @Override
     public void update(Player player) {
         float moveAmountX = 0;
-        float moveAmountY = 0;
-
-        // add gravity (if in air, this will cause bug to fall)
-        moveAmountY += gravity;
 
         // if on ground, walk forward based on facing direction
         if (airGroundState == AirGroundState.GROUND) {
@@ -56,7 +51,6 @@ public class SquirrelEnemy extends Enemy {
             }
         }
 
-        moveYHandleCollision(moveAmountY);
         moveXHandleCollision(moveAmountX);
 
         super.update(player);
@@ -97,12 +91,12 @@ public class SquirrelEnemy extends Enemy {
                     new FrameBuilder(spriteSheet.getSprite(0, 0), 8)
                             .withScale(2)
                             .withImageEffect(ImageEffect.FLIP_HORIZONTAL)
-                            .withBounds(6, 6, 12, 7)
+                            .withBounds(6, 6, 6, 7)
                             .build(),
                     new FrameBuilder(spriteSheet.getSprite(0, 1), 8)
                             .withScale(2)
                             .withImageEffect(ImageEffect.FLIP_HORIZONTAL)
-                            .withBounds(6, 6, 12, 7)
+                            .withBounds(0, 0, 3, 3)
                             .build()
             });
 

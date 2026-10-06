@@ -8,24 +8,31 @@ import java.util.HashMap;
 // This class is a base class for all enemies in the game -- all enemies should extend from it
 public class Enemy extends MapEntity {
 
-    public Enemy(float x, float y, SpriteSheet spriteSheet, String startingAnimation) {
+    private int health;
+
+    public Enemy(float x, float y, int health, SpriteSheet spriteSheet, String startingAnimation) {
         super(x, y, spriteSheet, startingAnimation);
+        this.health = health;
     }
 
-    public Enemy(float x, float y, HashMap<String, Frame[]> animations, String startingAnimation) {
+    public Enemy(float x, float y, int health, HashMap<String, Frame[]> animations, String startingAnimation) {
         super(x, y, animations, startingAnimation);
+        this.health = health;
     }
 
-    public Enemy(float x, float y, Frame[] frames) {
+    public Enemy(float x, float y, int health, Frame[] frames) {
         super(x, y, frames);
+        this.health = health;
     }
 
-    public Enemy(float x, float y, Frame frame) {
+    public Enemy(float x, float y, int health, Frame frame) {
         super(x, y, frame);
+        this.health = health;
     }
 
-    public Enemy(float x, float y) {
+    public Enemy(float x, float y, int health) {
         super(x, y);
+        this.health = health;
     }
 
     @Override
@@ -36,6 +43,16 @@ public class Enemy extends MapEntity {
     public void update(Player player) {
         super.update();
         if (intersects(player)) {
+
+            // If the player is attacking - Alex
+            if (/*to be replaced when the player has attacking support*/1 == 2) {
+                this.health--;
+                if (health <= 0) {
+                    // TODO: impliment a way to remove the enemy from the level - Alex
+                }
+                return;
+            }
+
             touchedPlayer(player);
         }
     }
