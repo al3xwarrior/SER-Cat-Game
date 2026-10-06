@@ -83,6 +83,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
         switch (playLevelScreenState) {
             case RUNNING:
                 map.draw(graphicsHandler);
+                ((Cat) player).drawTimeWarpOverlay(graphicsHandler);
                 player.draw(graphicsHandler);
                 ((Cat) player).drawStaminaBar(graphicsHandler);
                 coordsDebugLabel.setText("X: " + player.getLocation().x + " | Y: " + player.getLocation().y);

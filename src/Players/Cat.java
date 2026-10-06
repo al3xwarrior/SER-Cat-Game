@@ -41,6 +41,16 @@ public class Cat extends Player {
 
         protected int timeWarpFramesRemaining = 0;
 
+// visual feedback: the world gets tinted while time warping, and the stamina bar flashes red and shakes when a move fails from lack of stamina
+        protected final int timeWarpFadeFrames = 15; // how long the tint takes to fade in/out
+        protected final int timeWarpWarningFrames = 90; // tint flickers during the last 1.5 seconds of the warp
+        protected int timeWarpOverlayFrames = 0;
+        protected final Color timeWarpTintColor = new Color(90, 60, 200);
+        protected final int timeWarpTintMaxAlpha = 70;
+
+        protected final int staminaFailFlashDuration = 20;
+        protected int staminaFailFlashFramesRemaining = 0;
+
 
 
     public Cat(float x, float y) {
@@ -60,6 +70,19 @@ public class Cat extends Player {
         updateStaminaAbilityInput();
         updateTimeWarpTimer();
         updateStaminaRegen();
+        updateVisualFeedbackTimers();
+    }
+
+    public void updateVisualFeedbackTimers() {
+        if (isTimeWarping()) {
+            timeWarpOverlayFrames = Math.min(timeWarpFadeFrames, timeWarpOverlayFrames + 1);
+        } else {
+            timeWarpOverlayFrames = Math.max(0, timeWarpOverlayFrames - 1);
+        }
+
+        if (staminaFailFlashFramesRemaining > 0) {
+            staminaFailFlashFramesRemaining--;
+        }
     }
 
     @Override
@@ -106,6 +129,7 @@ public class Cat extends Player {
 
         public boolean useStamina(float amount) {
                 if (stamina - amount < 0f) {
+                        staminaFailFlashFramesRemaining = staminaFailFlashDuration;
                         return false;
                 }
 
@@ -131,7 +155,6 @@ public class Cat extends Player {
 
     public void draw(GraphicsHandler graphicsHandler) {
         super.draw(graphicsHandler);
-        drawStaminaBar(graphicsHandler);
         // drawBounds(graphicsHandler, new Color(255, 0, 0, 170));
     }
 
@@ -143,14 +166,49 @@ public class Cat extends Player {
 
         int filledWidth = (int) (barWidth * getStaminaPercent());
 
+        Color fillColor = new Color(80, 200, 225);
+        Color borderColor = Color.black;
+
+        // not enough stamina for a move: shake the bar side to side and flash it red
+        if (staminaFailFlashFramesRemaining > 0) {
+                barX += (staminaFailFlashFramesRemaining % 4 < 2) ? 3 : -3;
+                if (staminaFailFlashFramesRemaining % 8 < 4) {
+                        fillColor = new Color(230, 60, 60);
+                        borderColor = new Color(230, 60, 60);
+                }
+        }
+
         graphicsHandler.drawFilledRectangle(barX, barY, barWidth, barHeight, new Color(60,60,60,200));
 
         if (filledWidth > 0) {
-                graphicsHandler.drawFilledRectangle(barX, barY, filledWidth, barHeight, new Color(80, 200, 225));
+                graphicsHandler.drawFilledRectangle(barX, barY, filledWidth, barHeight, fillColor);
         }
 
-        graphicsHandler.drawRectangle(barX, barY, barWidth, barHeight, Color.black, 2);
+        graphicsHandler.drawRectangle(barX, barY, barWidth, barHeight, borderColor, 2);
+
+        // thin bar under the stamina bar showing how much time warp is left
+        if (isTimeWarping()) {
+                int warpWidth = (int) (barWidth * ((float) timeWarpFramesRemaining / timeWarpDuration));
+                graphicsHandler.drawFilledRectangle(barX, barY + barHeight + 4, warpWidth, 4, timeWarpTintColor.brighter());
+        }
 }
+
+    // tints the whole screen while time warping, should be drawn after the map but before the cat so the cat stays untinted
+    public void drawTimeWarpOverlay(GraphicsHandler graphicsHandler) {
+        if (timeWarpOverlayFrames <= 0) {
+            return;
+        }
+
+        int alpha = timeWarpTintMaxAlpha * timeWarpOverlayFrames / timeWarpFadeFrames;
+
+        // flicker as a warning that the time warp is about to run out
+        if (isTimeWarping() && timeWarpFramesRemaining < timeWarpWarningFrames && (timeWarpFramesRemaining / 6) % 2 == 0) {
+            alpha /= 2;
+        }
+
+        Color tint = new Color(timeWarpTintColor.getRed(), timeWarpTintColor.getGreen(), timeWarpTintColor.getBlue(), alpha);
+        graphicsHandler.drawFilledRectangle(0, 0, Config.GAME_WINDOW_WIDTH, Config.GAME_WINDOW_HEIGHT, tint);
+    }
 
 
 
