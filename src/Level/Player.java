@@ -570,7 +570,7 @@ public abstract class Player extends GameObject {
         momentumY = 0f;
         jumpForce = 10f;
 
-        makeInvincible(invincibilityFramesRemaining + 60);
+        makeInvincible(invincibilityFramesRemaining + 30);
     }
 
     // makes the player invincible (immune to hurtPlayer) for the given number of frames, and gives it the invincibility glow
@@ -656,9 +656,6 @@ public abstract class Player extends GameObject {
         }
         // if death animation on last frame (it is set up not to loop back to start), player should continually fall until it goes off screen
         else if (currentFrameIndex == getCurrentAnimation().length - 1) {
-            squash = 0;
-            stretch = 0;
-
             if (map.getCamera().containsDraw(this)) {
                 moveY(3);
             } else {
@@ -705,6 +702,11 @@ public abstract class Player extends GameObject {
             stretchOffset = 0.5;
             squash = -(int) Math.abs(moveAmountY);
             stretch = (int) Math.abs(moveAmountY) - ((int) Math.abs(moveAmountX));
+        }
+
+        if (levelState == LevelState.PLAYER_DEAD) {
+            squash = 0;
+            stretch = 0;
         }
 
         super.drawSquashStretch(graphicsHandler, squash, stretch, squashOffset, stretchOffset);
