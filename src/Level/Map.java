@@ -62,10 +62,13 @@ public abstract class Map {
     // map tiles in map that are animated
     protected ArrayList<MapTile> animatedMapTiles;
 
-    public Map(String mapFileName, Tileset tileset) {
+    protected String displayName;
+
+    public Map(String mapFileName, String displayName, Tileset tileset) {
         this.mapFileName = mapFileName;
         this.tileset = tileset;
         setupMap();
+        this.displayName = displayName;
         this.startBoundX = 0;
         this.startBoundY = 0;
         this.endBoundX = width * tileset.getScaledSpriteWidth();
@@ -418,5 +421,9 @@ public abstract class Map {
             }
         }
         return height - 1;
+    }
+
+    public String getDisplayName() {
+        return displayName;
     }
 }

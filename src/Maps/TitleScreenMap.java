@@ -14,7 +14,7 @@ public class TitleScreenMap extends Map {
     private Sprite cat;
 
     public TitleScreenMap() {
-        super("title_screen_map.txt", new CommonTileset());
+        super("title_screen_map.txt", "Title Screen", new CommonTileset());
         Point catLocation = getMapTile(6, 8).getLocation().subtractX(24).subtractY(6);
         cat = new Sprite(ImageLoader.loadSubImage("Cat.png", Colors.MAGENTA, 0, 0, 24, 24));
         cat.setScale(3);

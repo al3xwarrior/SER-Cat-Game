@@ -7,8 +7,7 @@ import Game.ScreenCoordinator;
 import Level.Map;
 import Level.Player;
 import Level.PlayerListener;
-import Maps.DebugMap;
-import Maps.Level1Map;
+import MapEditor.EditorMaps;
 import Players.Cat;
 import SpriteFont.SpriteFont;
 
@@ -33,8 +32,8 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
 
     public void initialize() {
         // define/setup map
-        // this.map = new Level1Map(); // if you want to see level 1 - Alex
-        this.map = new DebugMap();
+        // the map is chosen on the level selector screen
+        this.map = EditorMaps.getMapByName(screenCoordinator.getSelectedMapName());
 
         // setup player
         this.player = new Cat(map.getPlayerStartPosition().x, map.getPlayerStartPosition().y);
