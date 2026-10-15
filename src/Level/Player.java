@@ -268,7 +268,25 @@ public abstract class Player extends GameObject {
 
     // player SLIDING state logic
     protected void playerSliding() {
-        appliedFriction = (float) (baseFriction / 1.17);
+        // some of the lines below are taken from GameObject.java
+        Direction direction = moveAmountX < 0 ? Direction.LEFT : Direction.RIGHT;
+
+        SlopeProximityStatus slopeProximityStatus = MapCollisionHandler.getCurrentSlopeProximityStatus(this, map, direction);
+
+        // tells us if we are moving down or up hill respectively    
+
+        appliedFriction = (float) (baseFriction / 1.18);
+
+        MapCollisionCheckResult slopeCollisionMovingUpCheckResult = MapCollisionHandler.getAdjustedPositionAfterCollisionSlopeCheckY(this, map);
+        if (slopeCollisionMovingUpCheckResult.getAdjustedLocation() != null) {
+            appliedFriction = (float) (baseFriction / 1.09);
+        } 
+
+        // checks if we're sliding downhill
+        MapCollisionCheckResult slopeCollisionMovingDownCheckResult = MapCollisionHandler.getAdjustedPositionAfterCollisionSlopeCheckX(this, map, slopeProximityStatus);
+        if (slopeCollisionMovingDownCheckResult.getAdjustedLocation() != null) {
+            appliedFriction = (float) (baseFriction / 1.25);
+        } 
 
         // if crouch key is released, player enters STANDING state
         if (Keyboard.isKeyUp(CROUCH_KEY)) {
@@ -355,7 +373,13 @@ public abstract class Player extends GameObject {
 
         // if player last frame was in air and this frame is now on ground, player enters STANDING state
         else if (previousAirGroundState == AirGroundState.AIR && airGroundState == AirGroundState.GROUND) {
-            playerState = PlayerState.STANDING;
+            // ...UNLESS they're holding the jump button, which we will allow them to jump
+            if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
+                keyLocker.lockKey(JUMP_KEY);
+                playerState = PlayerState.JUMPING;
+            } else {
+                playerState = PlayerState.STANDING;
+            }
         }
 
         // if, at any moment that the player is airborne, player presses the dash key, player enters DASHING state

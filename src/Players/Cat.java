@@ -127,6 +127,10 @@ public class Cat extends Player {
         }
     }
 
+    public void updatePlayerFriction(float amount) {
+        super.appliedFriction = amount;
+    }
+
         public boolean useStamina(float amount) {
                 if (stamina - amount < 0f) {
                         staminaFailFlashFramesRemaining = staminaFailFlashDuration;
