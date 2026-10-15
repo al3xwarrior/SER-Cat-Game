@@ -440,9 +440,18 @@ public abstract class Player extends GameObject {
             momentumY = -7f;
         }
 
+        // if the player hits the ground, set them to the STANDING state
         else if (airGroundState == AirGroundState.GROUND) {
             stateFrames = 0f;
-            playerState = PlayerState.STANDING;
+
+            // ...UNLESS they're holding the jump button, which we will allow them to jump
+            if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
+                keyLocker.lockKey(JUMP_KEY);
+                previousAirGroundState = AirGroundState.GROUND;
+                playerState = PlayerState.JUMPING;
+            } else {
+                playerState = PlayerState.STANDING;
+            }
         }
 
         momentumY += gravity;
