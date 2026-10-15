@@ -22,7 +22,7 @@ import java.util.ArrayList;
  */
 public class Level1Map extends Map {
     public Level1Map() {
-        super("level1_map.txt", new CommonTileset());
+        super("level1_map.txt", "Level 1", new CommonTileset());
         playerStartPosition = getMapTile(3, 8).getLocation();
     }
 

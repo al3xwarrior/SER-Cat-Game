@@ -4,6 +4,7 @@ import Engine.DefaultScreen;
 import Engine.GraphicsHandler;
 import Engine.Screen;
 import Screens.CreditsScreen;
+import Screens.LevelSelectorScreen;
 import Screens.MenuScreen;
 import Screens.PlayLevelScreen;
 
@@ -18,6 +19,17 @@ public class ScreenCoordinator extends Screen {
 	// keep track of gameState so ScreenCoordinator knows which Screen to show
 	protected GameState gameState;
 	protected GameState previousGameState;
+
+	// name of the map (see EditorMaps) the LEVEL state should load, chosen on the level selector
+	protected String selectedMapName = "DebugMap";
+
+	public String getSelectedMapName() {
+		return selectedMapName;
+	}
+
+	public void setSelectedMapName(String selectedMapName) {
+		this.selectedMapName = selectedMapName;
+	}
 
 	public GameState getGameState() {
 		return gameState;
@@ -47,6 +59,9 @@ public class ScreenCoordinator extends Screen {
 					case LEVEL:
 						currentScreen = new PlayLevelScreen(this);
 						break;
+                    case LEVEL_SELECTOR:
+                        currentScreen = new LevelSelectorScreen(this);
+                        break;
 					case CREDITS:
 						currentScreen = new CreditsScreen(this);
 						break;

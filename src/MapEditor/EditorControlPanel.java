@@ -27,7 +27,7 @@ public class EditorControlPanel extends JPanel {
         setLocation(0, 0);
         setPreferredSize(new Dimension(200, 600));
 
-        mapNames = EditorMaps.getMapNames();
+        mapNames = EditorMaps.getMaps();
 
         this.mapBuilder = mapBuilder;
 
