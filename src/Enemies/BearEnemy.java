@@ -27,10 +27,16 @@ public class BearEnemy extends Enemy {
     protected AirGroundState airGroundState;
 
     public BearEnemy(Point startLocation, Point endLocation, Direction facingDirection) {
-        super(startLocation.x, startLocation.y + GROUND_OFFSET, 3, new SpriteSheet(ImageLoader.load("BearEnemy.png"), 29, 15), "WALK_RIGHT");
+        this(startLocation, endLocation, facingDirection, 1.1f);
+    }
+
+    public BearEnemy(Point startLocation, Point endLocation, Direction facingDirection, float movementSpeed) {
+        super(facingDirection == Direction.RIGHT ? startLocation.x : endLocation.x - 69,
+                startLocation.y + GROUND_OFFSET, 3, new SpriteSheet(ImageLoader.load("BearEnemy.png"), 29, 15), "WALK_RIGHT");
         this.startLocation = startLocation;
         this.endLocation = endLocation;
         this.startFacingDirection = facingDirection;
+        this.movementSpeed = movementSpeed;
         this.initialize();
     }
 
@@ -59,13 +65,9 @@ public class BearEnemy extends Enemy {
             moveXHandleCollision(-movementSpeed);
         }
 
-        if (getX1() + getWidth() >= endBound) {
-            float difference = endBound - getX2();
-            moveXHandleCollision(-difference);
+        if (getX2() >= endBound) {
             facingDirection = Direction.LEFT;
         } else if (getX1() <= startBound) {
-            float difference = startBound - getX1();
-            moveXHandleCollision(difference);
             facingDirection = Direction.RIGHT;
         }
 
