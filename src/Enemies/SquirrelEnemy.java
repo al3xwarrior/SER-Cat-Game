@@ -16,14 +16,30 @@ import java.util.HashMap;
 
 public class SquirrelEnemy extends Enemy {
     private float gravity = 1.2f;
-    private float movementSpeed = 2.0f;
+    private final float movementSpeed;
+    private final float leftBound;
+    private final float rightBound;
+    private final boolean hasPatrol;
     private Direction startFacingDirection;
     private Direction facingDirection;
     private AirGroundState airGroundState;
 
     public SquirrelEnemy(Point location, Direction facingDirection) {
-        super(location.x, location.y, 1, new SpriteSheet(ImageLoader.load("SquirrelEnemy.png"), 30, 19), "WALK_LEFT");
+        this(location, location, facingDirection, 2.0f, false);
+    }
+
+    public SquirrelEnemy(Point start, Point end, Direction facingDirection, float movementSpeed) {
+        this(start, end, facingDirection, movementSpeed, true);
+    }
+
+    private SquirrelEnemy(Point start, Point end, Direction facingDirection, float movementSpeed, boolean hasPatrol) {
+        super(facingDirection == Direction.RIGHT || !hasPatrol ? start.x : end.x - 60,
+                start.y, 1, new SpriteSheet(ImageLoader.load("SquirrelEnemy.png"), 30, 19), "WALK_LEFT");
         this.startFacingDirection = facingDirection;
+        this.movementSpeed = movementSpeed;
+        this.leftBound = start.x;
+        this.rightBound = end.x;
+        this.hasPatrol = hasPatrol;
         this.initialize();
     }
 
@@ -58,6 +74,16 @@ public class SquirrelEnemy extends Enemy {
 
         moveYHandleCollision(moveAmountY);
         moveXHandleCollision(moveAmountX);
+
+        if (hasPatrol) {
+            if (getX2() >= rightBound) {
+                facingDirection = Direction.LEFT;
+                currentAnimationName = "WALK_LEFT";
+            } else if (getX1() <= leftBound) {
+                facingDirection = Direction.RIGHT;
+                currentAnimationName = "WALK_RIGHT";
+            }
+        }
 
         super.update(player);
     }

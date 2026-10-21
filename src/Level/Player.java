@@ -9,6 +9,7 @@ import GameObject.ImageEffect;
 import GameObject.SpriteSheet;
 import Utils.AirGroundState;
 import Utils.Direction;
+import Utils.PlayerControls;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -55,14 +56,14 @@ public abstract class Player extends GameObject {
 
     // define keys
     protected KeyLocker keyLocker = new KeyLocker();
-    protected Key JUMP_KEY = Key.W;
-    protected Key MOVE_LEFT_KEY = Key.A;
-    protected Key MOVE_RIGHT_KEY = Key.D;
-    protected Key CROUCH_KEY = Key.S;
+    protected Key JUMP_KEY = PlayerControls.getJumpControl();
+    protected Key MOVE_LEFT_KEY = PlayerControls.getLeftControl();
+    protected Key MOVE_RIGHT_KEY = PlayerControls.getRightControl();
+    protected Key CROUCH_KEY = PlayerControls.getCrouchControl();
 
-    protected Key DASH_KEY = Key.J;
-    protected Key POUNCE_KEY = Key.K;
-    protected Key DIVE_KEY = Key.L;
+    protected Key DASH_KEY = PlayerControls.getDashControl();
+    protected Key POUNCE_KEY = PlayerControls.getPounceControl();
+    protected Key DIVE_KEY = PlayerControls.getDiveControl();
 
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
@@ -268,7 +269,25 @@ public abstract class Player extends GameObject {
 
     // player SLIDING state logic
     protected void playerSliding() {
-        appliedFriction = (float) (baseFriction / 1.17);
+        // some of the lines below are taken from GameObject.java
+        Direction direction = moveAmountX < 0 ? Direction.LEFT : Direction.RIGHT;
+
+        SlopeProximityStatus slopeProximityStatus = MapCollisionHandler.getCurrentSlopeProximityStatus(this, map, direction);
+
+        // tells us if we are moving down or up hill respectively    
+
+        appliedFriction = (float) (baseFriction / 1.18);
+
+        MapCollisionCheckResult slopeCollisionMovingUpCheckResult = MapCollisionHandler.getAdjustedPositionAfterCollisionSlopeCheckY(this, map);
+        if (slopeCollisionMovingUpCheckResult.getAdjustedLocation() != null) {
+            appliedFriction = (float) (baseFriction / 1.09);
+        } 
+
+        // checks if we're sliding downhill
+        MapCollisionCheckResult slopeCollisionMovingDownCheckResult = MapCollisionHandler.getAdjustedPositionAfterCollisionSlopeCheckX(this, map, slopeProximityStatus);
+        if (slopeCollisionMovingDownCheckResult.getAdjustedLocation() != null) {
+            appliedFriction = (float) (baseFriction / 1.25);
+        } 
 
         // if crouch key is released, player enters STANDING state
         if (Keyboard.isKeyUp(CROUCH_KEY)) {
@@ -355,7 +374,13 @@ public abstract class Player extends GameObject {
 
         // if player last frame was in air and this frame is now on ground, player enters STANDING state
         else if (previousAirGroundState == AirGroundState.AIR && airGroundState == AirGroundState.GROUND) {
-            playerState = PlayerState.STANDING;
+            // ...UNLESS they're holding the jump button, which we will allow them to jump
+            if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
+                keyLocker.lockKey(JUMP_KEY);
+                playerState = PlayerState.JUMPING;
+            } else {
+                playerState = PlayerState.STANDING;
+            }
         }
 
         // if, at any moment that the player is airborne, player presses the dash key, player enters DASHING state
@@ -416,9 +441,18 @@ public abstract class Player extends GameObject {
             momentumY = -7f;
         }
 
+        // if the player hits the ground, set them to the STANDING state
         else if (airGroundState == AirGroundState.GROUND) {
             stateFrames = 0f;
-            playerState = PlayerState.STANDING;
+
+            // ...UNLESS they're holding the jump button, which we will allow them to jump
+            if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
+                keyLocker.lockKey(JUMP_KEY);
+                previousAirGroundState = AirGroundState.GROUND;
+                playerState = PlayerState.JUMPING;
+            } else {
+                playerState = PlayerState.STANDING;
+            }
         }
 
         momentumY += gravity;
@@ -489,6 +523,32 @@ public abstract class Player extends GameObject {
 
         if (Keyboard.isKeyUp(DIVE_KEY)) {
             keyLocker.unlockKey(DIVE_KEY);
+        }
+    }
+
+    public void updateControls(PlayerControls controlToUpdate, Key keyToAssign) {
+        switch (controlToUpdate) {
+            case JUMP:
+                JUMP_KEY = keyToAssign;
+                break;
+            case LEFT:
+                MOVE_LEFT_KEY = keyToAssign;
+                break;
+            case RIGHT:
+                MOVE_RIGHT_KEY = keyToAssign;
+                break;
+            case CROUCH:
+                CROUCH_KEY = keyToAssign;
+                break;
+            case DASH:
+                DASH_KEY = keyToAssign;
+                break;
+            case POUNCE:
+                POUNCE_KEY = keyToAssign;
+                break;
+            case DIVE:
+                DIVE_KEY = keyToAssign;
+                break;
         }
     }
 
@@ -570,7 +630,7 @@ public abstract class Player extends GameObject {
         momentumY = 0f;
         jumpForce = 10f;
 
-        makeInvincible(invincibilityFramesRemaining + 60);
+        makeInvincible(invincibilityFramesRemaining + 30);
     }
 
     // makes the player invincible (immune to hurtPlayer) for the given number of frames, and gives it the invincibility glow
@@ -656,9 +716,6 @@ public abstract class Player extends GameObject {
         }
         // if death animation on last frame (it is set up not to loop back to start), player should continually fall until it goes off screen
         else if (currentFrameIndex == getCurrentAnimation().length - 1) {
-            squash = 0;
-            stretch = 0;
-
             if (map.getCamera().containsDraw(this)) {
                 moveY(3);
             } else {
@@ -705,6 +762,11 @@ public abstract class Player extends GameObject {
             stretchOffset = 0.5;
             squash = -(int) Math.abs(moveAmountY);
             stretch = (int) Math.abs(moveAmountY) - ((int) Math.abs(moveAmountX));
+        }
+
+        if (levelState == LevelState.PLAYER_DEAD) {
+            squash = 0;
+            stretch = 0;
         }
 
         super.drawSquashStretch(graphicsHandler, squash, stretch, squashOffset, stretchOffset);

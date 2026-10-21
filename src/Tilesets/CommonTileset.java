@@ -262,6 +262,11 @@ public class CommonTileset extends Tileset {
 
         mapTiles.add(leftStairsTopTile);
 
+        // Scenery versions of the tree tiles. They let a fast-moving player
+        // pass through the forest without stopping at every trunk or crown.
+        mapTiles.add(new MapTileBuilder(treeTrunkFrame)); // 21
+        mapTiles.add(new MapTileBuilder(treeTopLeavesFrame)); // 22
+
         return mapTiles;
     }
 }

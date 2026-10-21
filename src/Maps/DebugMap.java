@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class DebugMap extends Map {
     public DebugMap() {
-        super("debug_map.txt", new CommonTileset());
+        super("debug_map.txt", "Debug Map", new CommonTileset());
         this.playerStartPosition = getMapTile(2, 11).getLocation();
     }
 

@@ -42,16 +42,6 @@ public class Enemy extends MapEntity {
     public void update(Player player) {
         super.update();
         if (intersects(player)) {
-
-            // If the player is attacking - Alex
-            if (/*to be replaced when the player has attacking support*/1 == 2) {
-                this.health--;
-                if (health <= 0) {
-                    // TODO: impliment a way to remove the enemy from the level - Alex
-                }
-                return;
-            }
-
             touchedPlayer(player);
         }
     }
@@ -63,6 +53,7 @@ public class Enemy extends MapEntity {
         } else {
             this.health--;
             player.hitEnemy(this);
+            this.mapEntityStatus = MapEntityStatus.REMOVED;
         }
     }
 }
