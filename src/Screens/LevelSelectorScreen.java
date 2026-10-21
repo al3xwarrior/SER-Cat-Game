@@ -6,9 +6,8 @@ import Game.ScreenCoordinator;
 import Level.Map;
 import MapEditor.EditorMaps;
 import Maps.TitleScreenMap;
-
+import Utils.PlayerControls;
 import java.awt.*;
-import java.awt.Rectangle;
 import java.util.ArrayList;
 
 // This is the screen where the player picks which level to play
@@ -100,10 +99,10 @@ public class LevelSelectorScreen extends Screen {
     private void updateKeyboardNavigation() {
         int backIndex = maps.size();
 
-        if (pressed(Key.RIGHT) || pressed(Key.D)) focusedIndex = Math.min(focusedIndex + 1, backIndex);
-        if (pressed(Key.LEFT) || pressed(Key.A)) focusedIndex = Math.max(focusedIndex - 1, 0);
-        if (pressed(Key.DOWN) || pressed(Key.S)) focusedIndex = focusedIndex + COLUMNS < maps.size() ? focusedIndex + COLUMNS : backIndex;
-        if (pressed(Key.UP) || pressed(Key.W)) {
+        if (pressed(PlayerControls.getRightControl())) focusedIndex = Math.min(focusedIndex + 1, backIndex);
+        if (pressed(PlayerControls.getLeftControl())) focusedIndex = Math.max(focusedIndex - 1, 0);
+        if (pressed(PlayerControls.getCrouchControl())) focusedIndex = focusedIndex + COLUMNS < maps.size() ? focusedIndex + COLUMNS : backIndex;
+        if (pressed(PlayerControls.getJumpControl())) {
             if (focusedIndex == backIndex) {
                 focusedIndex = maps.size() - 1;
             } else {

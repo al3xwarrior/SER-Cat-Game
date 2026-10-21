@@ -9,6 +9,7 @@ import GameObject.ImageEffect;
 import GameObject.SpriteSheet;
 import Utils.AirGroundState;
 import Utils.Direction;
+import Utils.PlayerControls;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
@@ -55,14 +56,14 @@ public abstract class Player extends GameObject {
 
     // define keys
     protected KeyLocker keyLocker = new KeyLocker();
-    protected Key JUMP_KEY = Key.W;
-    protected Key MOVE_LEFT_KEY = Key.A;
-    protected Key MOVE_RIGHT_KEY = Key.D;
-    protected Key CROUCH_KEY = Key.S;
+    protected Key JUMP_KEY = PlayerControls.getJumpControl();
+    protected Key MOVE_LEFT_KEY = PlayerControls.getLeftControl();
+    protected Key MOVE_RIGHT_KEY = PlayerControls.getRightControl();
+    protected Key CROUCH_KEY = PlayerControls.getCrouchControl();
 
-    protected Key DASH_KEY = Key.J;
-    protected Key POUNCE_KEY = Key.K;
-    protected Key DIVE_KEY = Key.L;
+    protected Key DASH_KEY = PlayerControls.getDashControl();
+    protected Key POUNCE_KEY = PlayerControls.getPounceControl();
+    protected Key DIVE_KEY = PlayerControls.getDiveControl();
 
     // flags
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
@@ -522,6 +523,32 @@ public abstract class Player extends GameObject {
 
         if (Keyboard.isKeyUp(DIVE_KEY)) {
             keyLocker.unlockKey(DIVE_KEY);
+        }
+    }
+
+    public void updateControls(PlayerControls controlToUpdate, Key keyToAssign) {
+        switch (controlToUpdate) {
+            case JUMP:
+                JUMP_KEY = keyToAssign;
+                break;
+            case LEFT:
+                MOVE_LEFT_KEY = keyToAssign;
+                break;
+            case RIGHT:
+                MOVE_RIGHT_KEY = keyToAssign;
+                break;
+            case CROUCH:
+                CROUCH_KEY = keyToAssign;
+                break;
+            case DASH:
+                DASH_KEY = keyToAssign;
+                break;
+            case POUNCE:
+                POUNCE_KEY = keyToAssign;
+                break;
+            case DIVE:
+                DIVE_KEY = keyToAssign;
+                break;
         }
     }
 

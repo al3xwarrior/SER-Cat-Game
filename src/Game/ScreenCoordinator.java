@@ -3,6 +3,7 @@ package Game;
 import Engine.DefaultScreen;
 import Engine.GraphicsHandler;
 import Engine.Screen;
+import Screens.ControlScreen;
 import Screens.CreditsScreen;
 import Screens.LevelSelectorScreen;
 import Screens.MenuScreen;
@@ -64,6 +65,9 @@ public class ScreenCoordinator extends Screen {
                         break;
 					case CREDITS:
 						currentScreen = new CreditsScreen(this);
+						break;
+					case CONTROLS:
+						currentScreen = new ControlScreen(this);
 						break;
 				}
 				currentScreen.initialize();

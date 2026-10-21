@@ -3,9 +3,8 @@ package Engine;
 import GameObject.Rectangle;
 import SpriteFont.SpriteFont;
 import Utils.Colors;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 /*
  * This is where the game loop process and render back buffer is setup
@@ -48,7 +47,7 @@ public class GamePanel extends JPanel {
 
 		pauseLabel = new SpriteFont("PAUSE", 365, 280, "Arial", 24, Color.white);
 		pauseLabel.setOutlineColor(Color.black);
-		pauseLabel.setOutlineThickness(2.0f);
+		pauseLabel.setOutlineThickness(5.0f);
 
 		fpsDisplayLabel = new SpriteFont("FPS", 4, 3, "Arial", 12, Color.black);
 
