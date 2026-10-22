@@ -12,7 +12,7 @@ import Level.EnhancedMapTile;
 import Level.Map;
 import Level.TileType;
 import Powerups.HockeyStickPowerup;
-import Tilesets.FreshTileset;
+import Tilesets.CommonTileset;
 import Utils.Direction;
 import java.util.ArrayList;
 
@@ -23,7 +23,7 @@ import java.util.ArrayList;
  */
 public class Level1Map extends Map {
     public Level1Map() {
-        super("level1_map.txt", "Level 1", new FreshTileset());
+        super("level1_map.txt", "Level 1", new CommonTileset());
         playerStartPosition = getMapTile(3, 8).getLocation();
     }
 
