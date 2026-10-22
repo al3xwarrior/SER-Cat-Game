@@ -58,7 +58,7 @@ public enum PlayerControls {
     }
 
     public static void setJumpControl(Key jumpControl) {
-        IO.println("ive changed my jump control");
+        System.out.println("ive changed my jump control");
         PlayerControls.jumpControl = jumpControl;
     }
 

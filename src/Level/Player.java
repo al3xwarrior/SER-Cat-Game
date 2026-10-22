@@ -615,7 +615,7 @@ public abstract class Player extends GameObject {
         if (!isInvincible) {
             // if map entity is an enemy, kill player on touch
             if (mapEntity instanceof Enemy) {
-                levelState = LevelState.PLAYER_DEAD;
+                setLevelState(LevelState.PLAYER_DEAD);
             }
         }
     }
@@ -714,9 +714,10 @@ public abstract class Player extends GameObject {
         else if (currentFrameIndex != getCurrentAnimation().length - 1) {
           super.update();
         }
-        // if death animation on last frame (it is set up not to loop back to start), player should continually fall until it goes off screen
+        // Once the death animation finishes, fall out of the frozen camera's
+        // viewport and then show the lose screen.
         else if (currentFrameIndex == getCurrentAnimation().length - 1) {
-            if (map.getCamera().containsDraw(this)) {
+            if (getY() < map.getCamera().getEndBoundY()) {
                 moveY(3);
             } else {
                 // tell all player listeners that the player has died in the level
@@ -749,6 +750,9 @@ public abstract class Player extends GameObject {
 
     public void setLevelState(LevelState levelState) {
         this.levelState = levelState;
+        if (map != null && levelState == LevelState.PLAYER_DEAD) {
+            map.setAdjustCamera(false);
+        }
     }
 
     public void addListener(PlayerListener listener) {
