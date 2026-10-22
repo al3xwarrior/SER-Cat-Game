@@ -3,22 +3,20 @@ package Maps;
 import Enemies.BearEnemy;
 import Enemies.BirdEnemy;
 import Enemies.SquirrelEnemy;
-import Powerups.HockeyStickPowerup;
-
-import java.util.Random;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
 import EnhancedMapTiles.HorizontalMovingPlatform;
 import GameObject.Rectangle;
 import Level.*;
-import Tilesets.CommonTileset;
+import Powerups.HockeyStickPowerup;
+import Tilesets.FreshTileset;
 import Utils.Direction;
-
 import java.util.ArrayList;
+import java.util.Random;
 
 public class DebugMap extends Map {
     public DebugMap() {
-        super("debug_map.txt", "Debug Map", new CommonTileset());
+        super("debug_map.txt", "Debug Map", new FreshTileset());
         this.playerStartPosition = getMapTile(2, 11).getLocation();
     }
 
