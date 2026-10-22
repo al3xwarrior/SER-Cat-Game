@@ -526,30 +526,9 @@ public abstract class Player extends GameObject {
         }
     }
 
-    public void updateControls(PlayerControls controlToUpdate, Key keyToAssign) {
-        switch (controlToUpdate) {
-            case JUMP:
-                JUMP_KEY = keyToAssign;
-                break;
-            case LEFT:
-                MOVE_LEFT_KEY = keyToAssign;
-                break;
-            case RIGHT:
-                MOVE_RIGHT_KEY = keyToAssign;
-                break;
-            case CROUCH:
-                CROUCH_KEY = keyToAssign;
-                break;
-            case DASH:
-                DASH_KEY = keyToAssign;
-                break;
-            case POUNCE:
-                POUNCE_KEY = keyToAssign;
-                break;
-            case DIVE:
-                DIVE_KEY = keyToAssign;
-                break;
-        }
+    public void bouncePlayer(float force) {
+        playerState = PlayerState.JUMPING;
+        jumpForce = force;
     }
 
     // anything extra the player should do based on interactions can be handled here

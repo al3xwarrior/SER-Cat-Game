@@ -2,9 +2,8 @@ package MapEditor;
 
 import Level.Map;
 import Utils.Colors;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class MapBuilder extends JPanel {
     private Map map;

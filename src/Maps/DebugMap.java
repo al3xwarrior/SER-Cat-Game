@@ -4,8 +4,10 @@ import Enemies.BearEnemy;
 import Enemies.BirdEnemy;
 import Enemies.SquirrelEnemy;
 import Engine.ImageLoader;
+import EnhancedMapTiles.BounceTile;
 import EnhancedMapTiles.EndLevelBox;
 import EnhancedMapTiles.HorizontalMovingPlatform;
+import EnhancedMapTiles.KillTile;
 import GameObject.Rectangle;
 import Level.*;
 import Powerups.HockeyStickPowerup;
@@ -53,6 +55,12 @@ public class DebugMap extends Map {
 
         EndLevelBox endLevelBox = new EndLevelBox(getMapTile(49, 7).getLocation());
         enhancedMapTiles.add(endLevelBox);
+
+        KillTile killTile = new KillTile(getMapTile(57, 11).getLocation());
+        enhancedMapTiles.add(killTile);
+
+        BounceTile bounceTile = new BounceTile(getMapTile(59, 11).getLocation());
+        enhancedMapTiles.add(bounceTile);
 
         int numberOfPowerups = 5;
         Random random = new Random();
