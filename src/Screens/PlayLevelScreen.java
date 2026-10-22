@@ -66,7 +66,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
                     levelClearedScreen.update();
                     screenTimer--;
                     if (screenTimer == 0) {
-                        goBackToMenu();
+                        goToNextLevel();
                     }
                 }
                 break;
@@ -118,6 +118,16 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
 
     public void resetLevel() {
         initialize();
+    }
+
+    // beating Level 1 continues straight into Level 2, every other level goes back to the menu
+    public void goToNextLevel() {
+        if (screenCoordinator.getSelectedMapName().equals("Level1Map")) {
+            screenCoordinator.setSelectedMapName("Level2Map");
+            initialize();
+        } else {
+            goBackToMenu();
+        }
     }
 
     public void goBackToMenu() {
