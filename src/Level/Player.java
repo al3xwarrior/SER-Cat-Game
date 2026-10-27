@@ -35,7 +35,8 @@ public abstract class Player extends GameObject {
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
 
-    protected boolean needToDive = false;
+    // flags
+    protected boolean canDive = true;
 
     // values that are used when drawing player
     protected int squash = 0;
@@ -380,6 +381,7 @@ public abstract class Player extends GameObject {
                 playerState = PlayerState.JUMPING;
             } else {
                 playerState = PlayerState.STANDING;
+                canDive = true;
             }
         }
 
@@ -402,11 +404,10 @@ public abstract class Player extends GameObject {
         }
 
         // if the player presses the dive key, player enters DIVING state
-        if (Keyboard.isKeyDown(DIVE_KEY) && !keyLocker.isKeyLocked(DIVE_KEY)) {
+        if (Keyboard.isKeyDown(DIVE_KEY) && !keyLocker.isKeyLocked(DIVE_KEY) && canDive) {
             if (consumeStamina(10f)) {
                 System.out.println("Player dived!");
                 keyLocker.lockKey(DIVE_KEY);
-                needToDive = true;
                 playerState = PlayerState.DIVING;
             }
         }
@@ -428,34 +429,20 @@ public abstract class Player extends GameObject {
 
     // player DIVING logic
     protected void playerDiving() {
-        if (needToDive == true) {
-            needToDive = false;
+        if (canDive == true) {
+            stateFrames = 0f;
+            canDive = false;
 
             airGroundState = AirGroundState.AIR;
 
             float modifier = facingDirection == Direction.RIGHT ? 1 : -1;
 
-            jumpForce = 0f;
-
             momentumX += 3f * modifier;
-            momentumY = -7f;
+            momentumY = 0f;
+            jumpForce = 10f;
+
+            playerState = PlayerState.JUMPING;
         }
-
-        // if the player hits the ground, set them to the STANDING state
-        else if (airGroundState == AirGroundState.GROUND) {
-            stateFrames = 0f;
-
-            // ...UNLESS they're holding the jump button, which we will allow them to jump
-            if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
-                keyLocker.lockKey(JUMP_KEY);
-                previousAirGroundState = AirGroundState.GROUND;
-                playerState = PlayerState.JUMPING;
-            } else {
-                playerState = PlayerState.STANDING;
-            }
-        }
-
-        momentumY += gravity;
     }
 
     // player DASHNG logic
@@ -474,7 +461,7 @@ public abstract class Player extends GameObject {
             momentumX = 15f * xDir;
             momentumY = -15f * yDir;
 
-            stateFrames = 7f;
+            stateFrames = 10f;
         }
 
         else if (airGroundState == AirGroundState.GROUND) {
@@ -494,8 +481,9 @@ public abstract class Player extends GameObject {
         }
 
         else if (stateFrames == 1f) {
-            jumpForce = (momentumY < 0) ? momentumY * -0.5f : 0f;
+            jumpForce = (momentumY < 0) ? momentumY * -0.5f : 1f;
             momentumY = 0f;
+            momentumX *= 0.5f;
             playerState = PlayerState.JUMPING;
         }
     }
