@@ -9,7 +9,7 @@ import java.awt.image.BufferedImage;
 
 // Grants the player temporary invincibility and visually equips them with a hockey stick for the duration
 public class HockeyStickPowerup extends Powerup {
-    private static final int INVINCIBILITY_DURATION_FRAMES = 600; // 10 seconds at the game's target 60 FPS
+    private static final int INVINCIBILITY_DURATION_FRAMES = 240; // 4 seconds at the game's target 60 FPS
 
     private final BufferedImage hockeyStickImage;
 
