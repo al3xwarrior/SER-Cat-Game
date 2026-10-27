@@ -24,7 +24,7 @@ public class DinosaurEnemy extends Enemy {
     protected Point endLocation;
 
     protected float movementSpeed = 1f;
-    private Direction startFacingDirection;
+    private final Direction startFacingDirection;
     protected Direction facingDirection;
     protected AirGroundState airGroundState;
 

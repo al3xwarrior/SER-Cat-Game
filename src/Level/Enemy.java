@@ -53,7 +53,10 @@ public class Enemy extends MapEntity {
         } else {
             this.health--;
             player.hitEnemy(this);
-            this.mapEntityStatus = MapEntityStatus.REMOVED;
+
+            if (this.health <= 0) {
+                this.mapEntityStatus = MapEntityStatus.REMOVED;
+            }
         }
     }
 }

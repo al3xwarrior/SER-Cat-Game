@@ -22,7 +22,7 @@ public class BearEnemy extends Enemy {
     private static final int GROUND_OFFSET = 3;
 
     protected float movementSpeed = 1.1f;
-    private Direction startFacingDirection;
+    private final Direction startFacingDirection;
     protected Direction facingDirection;
     protected AirGroundState airGroundState;
 

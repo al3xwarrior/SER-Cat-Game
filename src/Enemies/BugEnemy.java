@@ -18,9 +18,9 @@ import java.util.HashMap;
 // enemy behaves like a Mario goomba -- walks forward until it hits a solid map tile, and then turns around
 // if it ends up in the air from walking off a cliff, it will fall down until it hits the ground again, and then will continue walking
 public class BugEnemy extends Enemy {
-    private float gravity = .5f;
-    private float movementSpeed = .5f;
-    private Direction startFacingDirection;
+    private final float gravity = .5f;
+    private final float movementSpeed = .5f;
+    private final Direction startFacingDirection;
     private Direction facingDirection;
     private AirGroundState airGroundState;
 

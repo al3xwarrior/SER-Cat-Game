@@ -15,12 +15,12 @@ import Utils.Point;
 import java.util.HashMap;
 
 public class SquirrelEnemy extends Enemy {
-    private float gravity = 1.2f;
+    private final float gravity = 1.2f;
     private final float movementSpeed;
     private final float leftBound;
     private final float rightBound;
     private final boolean hasPatrol;
-    private Direction startFacingDirection;
+    private final Direction startFacingDirection;
     private Direction facingDirection;
     private AirGroundState airGroundState;
 
