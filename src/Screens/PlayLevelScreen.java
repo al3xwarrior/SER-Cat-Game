@@ -2,6 +2,7 @@ package Screens;
 
 import Engine.GraphicsHandler;
 import Engine.Screen;
+import Engine.ScreenManager;
 import Game.GameState;
 import Game.ScreenCoordinator;
 import Level.Map;
@@ -12,6 +13,7 @@ import Players.Cat;
 import SpriteFont.SpriteFont;
 
 import java.awt.*;
+import java.awt.font.FontRenderContext;
 
 // This class is for when the platformer game is actually being played
 public class PlayLevelScreen extends Screen implements PlayerListener {
@@ -25,6 +27,13 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
     protected boolean levelCompletedStateChangeStart;
 
     protected SpriteFont coordsDebugLabel;
+
+    // map hints (see Map.addHintZone) fade in and out at the top of the screen
+    protected static final Font HINT_FONT = new Font("Arial", Font.BOLD, 20);
+    protected static final int HINT_Y = 110;
+    protected static final float HINT_FADE_PER_FRAME = 0.08f;
+    protected String hintText = null;
+    protected float hintAlpha = 0f;
 
     public PlayLevelScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
@@ -56,6 +65,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
             case RUNNING:
                 player.update();
                 map.update(player);
+                updateHint();
                 break;
             // if level has been completed, bring up the level cleared screen
             case LEVEL_COMPLETED:
@@ -87,6 +97,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
                 ((Cat) player).drawLowHealthWarning(graphicsHandler);
                 ((Cat) player).drawHealthBar(graphicsHandler);
                 ((Cat) player).drawStaminaBar(graphicsHandler);
+                drawHint(graphicsHandler);
                 coordsDebugLabel.setText("X: " + player.getLocation().x + " | Y: " + player.getLocation().y);
                 coordsDebugLabel.draw(graphicsHandler);
                 break;
@@ -97,6 +108,30 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
                 levelLoseScreen.draw(graphicsHandler);
                 break;
         }
+    }
+
+    // hints are hidden while time warping, since the player is already doing what they say
+    protected void updateHint() {
+        String currentHint = player.isTimeWarping() ? null : map.getHintAt(player);
+
+        if (currentHint != null) {
+            hintText = currentHint;
+            hintAlpha = Math.min(1f, hintAlpha + HINT_FADE_PER_FRAME);
+        } else {
+            hintAlpha = Math.max(0f, hintAlpha - HINT_FADE_PER_FRAME);
+        }
+    }
+
+    protected void drawHint(GraphicsHandler graphicsHandler) {
+        if (hintText == null || hintAlpha <= 0f) {
+            return;
+        }
+
+        int textWidth = (int) HINT_FONT.getStringBounds(hintText, new FontRenderContext(null, true, true)).getWidth();
+        int x = (ScreenManager.getScreenWidth() - textWidth) / 2;
+        int alpha = Math.round(255 * hintAlpha);
+
+        graphicsHandler.drawStringWithOutline(hintText, x, HINT_Y, HINT_FONT, new Color(255, 255, 255, alpha), new Color(0, 0, 0, alpha), 4f);
     }
 
     public PlayLevelScreenState getPlayLevelScreenState() {
