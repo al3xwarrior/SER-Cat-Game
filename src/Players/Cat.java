@@ -54,8 +54,11 @@ public class Cat extends Player {
 // health bar: lost health stays visible as a lighter "trail" that drains away shortly after a hit, and the bar pulses when health is low
         protected final int healthTrailDelayFrames = 30;
         protected final float healthTrailDrainPerFrame = 1f;
+        protected final float lowHealthPercent = 0.3f; // below this the health bar flashes and the screen edges glow red
+        protected final float criticalHealthPercent = 0.15f; // below this the warning pulses faster
         protected float healthTrail = 100f;
         protected int healthTrailDelayRemaining = 0;
+        protected int healthPulseFrames = 0;
         protected int staminaFailFlashFramesRemaining = 0;
 
 
@@ -92,6 +95,7 @@ public class Cat extends Player {
         }
 
         updateHealthTrail();
+        healthPulseFrames++;
     }
 
     public void updateHealthTrail() {
@@ -124,6 +128,12 @@ public class Cat extends Player {
         Color fillColor = new Color(220, 40, 40);
         Color borderColor = Color.black;
 
+        // low health: flash the bar and its border as a warning
+        if (isLowHealth() && (healthPulseFrames / getLowHealthFlashFrames()) % 2 == 0) {
+            fillColor = new Color(255, 110, 110);
+            borderColor = Color.white;
+        }
+
         graphicsHandler.drawFilledRectangle(barX, barY, barWidth, barHeight, new Color(60, 60, 60, 200));
 
         if (trailWidth > filledWidth) {
@@ -135,6 +145,43 @@ public class Cat extends Player {
         }
 
         graphicsHandler.drawRectangle(barX, barY, barWidth, barHeight, borderColor, 2);
+    }
+
+    public boolean isLowHealth() {
+        return health > 0 && getHealthPercent() <= lowHealthPercent;
+    }
+
+    // how many frames each low health flash lasts, faster when health is critical
+    protected int getLowHealthFlashFrames() {
+        return getHealthPercent() <= criticalHealthPercent ? 8 : 15;
+    }
+
+    // pulsing red glow around the edges of the screen while health is low
+    public void drawLowHealthWarning(GraphicsHandler graphicsHandler) {
+        if (!isLowHealth()) {
+            return;
+        }
+
+        // smooth pulse between 0 and 1, one full pulse every 2 flashes of the health bar
+        double pulse = (Math.sin(healthPulseFrames * Math.PI / getLowHealthFlashFrames()) + 1) / 2;
+        int maxAlpha = (int) (40 + 50 * pulse);
+
+        // layers of see-through red bands that get fainter towards the middle of the screen, which looks like a soft glow
+        int layers = 6;
+        int layerThickness = 6;
+        int width = ScreenManager.getScreenWidth();
+        int height = ScreenManager.getScreenHeight();
+
+        for (int i = 0; i < layers; i++) {
+            int alpha = maxAlpha * (layers - i) / layers / 2;
+            Color glow = new Color(220, 30, 30, alpha);
+            int inset = i * layerThickness;
+
+            graphicsHandler.drawFilledRectangle(inset, inset, width - inset * 2, layerThickness, glow); // top
+            graphicsHandler.drawFilledRectangle(inset, height - inset - layerThickness, width - inset * 2, layerThickness, glow); // bottom
+            graphicsHandler.drawFilledRectangle(inset, inset + layerThickness, layerThickness, height - (inset + layerThickness) * 2, glow); // left
+            graphicsHandler.drawFilledRectangle(width - inset - layerThickness, inset + layerThickness, layerThickness, height - (inset + layerThickness) * 2, glow); // right
+        }
     }
 
     @Override
