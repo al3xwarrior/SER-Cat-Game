@@ -25,6 +25,7 @@ public abstract class Player extends GameObject {
     protected float terminalVelocityY = 0;
     protected float terminalVelocityX = 0;
     protected float momentumYIncrease = 0;
+    protected int airJumps = 0;
 
     // values used to handle player movement
     protected float jumpForce = 0;
@@ -34,9 +35,11 @@ public abstract class Player extends GameObject {
     protected float stateFrames = 0;
     protected float moveAmountX, moveAmountY;
     protected float lastAmountMovedX, lastAmountMovedY;
+    protected int jumpsLeft = 0;
 
     // flags
     protected boolean canDive = true;
+    protected boolean registerDoubleJump = false;
 
     // values that are used when drawing player
     protected int squash = 0;
@@ -210,6 +213,9 @@ public abstract class Player extends GameObject {
         // double check that the friction is set back to normal
         appliedFriction = baseFriction;
 
+        // set remaining jumps back to normal
+        if (jumpsLeft < airJumps) jumpsLeft = airJumps;
+
         if (previousAirGroundState == AirGroundState.AIR) { 
             squash = 15;
             stretch = -15;
@@ -332,8 +338,12 @@ public abstract class Player extends GameObject {
     // player JUMPING state logic
     protected void playerJumping() {
         // if last frame player was on ground and this frame player is still on ground, the jump needs to be setup
-        if (previousAirGroundState == AirGroundState.GROUND && airGroundState == AirGroundState.GROUND) {
-
+        if ((previousAirGroundState == AirGroundState.GROUND && airGroundState == AirGroundState.GROUND) || (airGroundState == AirGroundState.AIR && registerDoubleJump)) {
+            if (registerDoubleJump == true) {
+                registerDoubleJump = false;
+                momentumY = 0f;
+            }
+            
             // sets animation to a JUMP animation based on which way player is facing
             currentAnimationName = facingDirection == Direction.RIGHT ? "JUMP_RIGHT" : "JUMP_LEFT";
 
@@ -426,6 +436,13 @@ public abstract class Player extends GameObject {
                 playerState = PlayerState.DIVING;
             }
         }
+
+        // if jump key is pressed, set registerDoubleJump flag to true
+        if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY) && jumpsLeft > 0) {
+            keyLocker.lockKey(JUMP_KEY);
+            registerDoubleJump = true;
+            jumpsLeft--;
+        }
     }
 
     // player POUNCING logic
@@ -477,6 +494,8 @@ public abstract class Player extends GameObject {
             momentumY = -15f * yDir;
 
             stateFrames = 10f;
+
+            jumpsLeft = Math.clamp(jumpsLeft + 1, 0, airJumps);
         }
 
         else if (airGroundState == AirGroundState.GROUND) {

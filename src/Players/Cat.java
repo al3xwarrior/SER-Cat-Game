@@ -69,10 +69,11 @@ public class Cat extends Player {
         baseFriction = 1.2f;
         terminalVelocityY = 15f;
         terminalVelocityX = 5f;
-        jumpHeight = 11.5f; // one block is euqal to 7.3f
+        jumpHeight = 11.5f; // one unit is euqal to 7.3f
         jumpDegrade = .5f;
         walkSpeed = 1f;
         momentumYIncrease = .5f;
+        airJumps = 1;
     }
 
     public void update() {
