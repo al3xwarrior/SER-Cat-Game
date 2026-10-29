@@ -11,7 +11,6 @@ import Level.Enemy;
 import Level.EnhancedMapTile;
 import Level.Map;
 import Level.TileType;
-import Powerups.HockeyStickPowerup;
 import Tilesets.FreshTileset;
 import Utils.Direction;
 import java.util.ArrayList;
@@ -94,11 +93,6 @@ public class Level1Map extends Map {
                     3,
                     new Rectangle(0, 6, 16, 4),
                     Direction.RIGHT));
-        }
-
-        int[][] pickupTiles = {{31, 14}, {156, 28}, {278, 44}, {402, 61}};
-        for (int[] tile : pickupTiles) {
-            tiles.add(new HockeyStickPowerup(getMapTile(tile[0], tile[1]).getLocation()));
         }
 
         // Flat trailhead, well before the right boundary, with room to land.

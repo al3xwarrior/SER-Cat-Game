@@ -2,6 +2,7 @@ package Powerups;
 
 import Engine.ImageLoader;
 import GameObject.Rectangle;
+import Level.Enemy;
 import Level.Player;
 import Utils.Point;
 
@@ -20,6 +21,18 @@ public class HockeyStickPowerup extends Powerup {
     private HockeyStickPowerup(Point location, BufferedImage hockeyStickImage) {
         super(hockeyStickImage, location, new Rectangle(0, 0, 16, 16), 3);
         this.hockeyStickImage = hockeyStickImage;
+    }
+
+    // creates a hockey stick that drops out of the given enemy when it is defeated
+    public static HockeyStickPowerup droppedBy(Enemy enemy) {
+        // the stick is 16x16 scaled by 3, center it on the enemy and line its bottom up with the enemy's bottom
+        int size = 16 * 3;
+        float x = enemy.getX() + enemy.getWidth() / 2f - size / 2f;
+        float y = enemy.getY() + enemy.getHeight() - size;
+
+        HockeyStickPowerup hockeyStick = new HockeyStickPowerup(new Point(x, y));
+        hockeyStick.makeDropped();
+        return hockeyStick;
     }
 
     @Override

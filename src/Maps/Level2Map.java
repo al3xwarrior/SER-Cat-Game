@@ -11,7 +11,6 @@ import Level.Enemy;
 import Level.EnhancedMapTile;
 import Level.Map;
 import Level.TileType;
-import Powerups.HockeyStickPowerup;
 import Tilesets.WhitneyAveTileset;
 import Utils.Direction;
 
@@ -98,12 +97,6 @@ public class Level2Map extends Map {
                     direction));
             // alternate directions so the platforms don't move in lockstep
             direction = direction == Direction.RIGHT ? Direction.LEFT : Direction.RIGHT;
-        }
-
-        // rewards for taking the rooftop route, plus one above the lake
-        int[][] pickupTiles = {{55, 8}, {91, 9}, {113, 5}, {147, 7}, {172, 10}};
-        for (int[] tile : pickupTiles) {
-            tiles.add(new HockeyStickPowerup(getMapTile(tile[0], tile[1]).getLocation()));
         }
 
         // end of the Hamden stretch of Whitney Ave, before New Haven

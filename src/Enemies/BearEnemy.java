@@ -39,6 +39,7 @@ public class BearEnemy extends Enemy {
         this.movementSpeed = movementSpeed;
         this.contactDamage = 35;
         this.killHealAmount = 20;
+        this.hockeyStickDropChance = 0.4f;
         this.initialize();
     }
 

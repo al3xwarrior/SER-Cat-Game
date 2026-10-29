@@ -2,7 +2,9 @@ package Level;
 
 import GameObject.Frame;
 import GameObject.SpriteSheet;
+import Powerups.HockeyStickPowerup;
 import java.util.HashMap;
+import java.util.Random;
 
 // This class is a base class for all enemies in the game -- all enemies should extend from it
 public class Enemy extends MapEntity {
@@ -13,6 +15,10 @@ public class Enemy extends MapEntity {
     // subclasses can change these in their constructor
     protected int contactDamage = 20;
     protected int killHealAmount = 5;
+
+    // chance (0 to 1) that this enemy drops a hockey stick power-up when defeated
+    protected float hockeyStickDropChance = 0.1f;
+    private static final Random random = new Random();
 
     public Enemy(float x, float y, int health, SpriteSheet spriteSheet, String startingAnimation) {
         super(x, y, spriteSheet, startingAnimation);
@@ -62,6 +68,10 @@ public class Enemy extends MapEntity {
             if (this.health <= 0) {
                 this.mapEntityStatus = MapEntityStatus.REMOVED;
                 player.healPlayer(killHealAmount);
+
+                if (map != null && random.nextFloat() < hockeyStickDropChance) {
+                    map.addEnhancedMapTile(HockeyStickPowerup.droppedBy(this));
+                }
             }
         }
     }
