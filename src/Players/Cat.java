@@ -7,6 +7,7 @@ import Engine.ImageLoader;
 import Engine.Key;
 import Engine.Keyboard;
 import Engine.KeyLocker;
+import Engine.ScreenManager;
 import GameObject.Frame;
 import GameObject.ImageEffect;
 import GameObject.SpriteSheet;
@@ -211,7 +212,7 @@ public class Cat extends Player {
         }
 
         Color tint = new Color(timeWarpTintColor.getRed(), timeWarpTintColor.getGreen(), timeWarpTintColor.getBlue(), alpha);
-        graphicsHandler.drawFilledRectangle(0, 0, Config.GAME_WINDOW_WIDTH, Config.GAME_WINDOW_HEIGHT, tint);
+        graphicsHandler.drawFilledRectangle(0, 0, ScreenManager.getScreenWidth(), ScreenManager.getScreenHeight(), tint);
     }
 
 
