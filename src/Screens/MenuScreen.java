@@ -22,6 +22,11 @@ public class MenuScreen extends Screen {
     protected int pointerLocationX, pointerLocationY;
     protected KeyLocker keyLocker = new KeyLocker();
 
+    // clickable area of each menu item (the blue square plus its text), in the same order as the items
+    protected Rectangle[] menuItemBounds;
+    protected int lastMouseX = -1;
+    protected int lastMouseY = -1;
+
     public MenuScreen(ScreenCoordinator screenCoordinator) {
         this.screenCoordinator = screenCoordinator;
     }
@@ -42,6 +47,27 @@ public class MenuScreen extends Screen {
         keyPressTimer = 0;
         menuItemSelected = -1;
         keyLocker.lockKey(Key.ENTER);
+
+        menuItemBounds = new Rectangle[]{getMenuItemBounds(playGame), getMenuItemBounds(credits), getMenuItemBounds(controls)};
+        Mouse.clearLeftClick(); // the click that opened this screen shouldn't also pick an item
+    }
+
+    // the area from the blue square to the end of the item's text
+    private Rectangle getMenuItemBounds(SpriteFont item) {
+        int textWidth = new Canvas().getFontMetrics(item.getFont()).stringWidth(item.getText());
+        int left = 170;
+        int top = Math.round(item.getY()) - 6;
+        return new Rectangle(left, top, Math.round(item.getX()) + textWidth - left + 10, 46);
+    }
+
+    // returns the index of the menu item under the given point, or -1 if there is none
+    private int getMenuItemAt(int x, int y) {
+        for (int i = 0; i < menuItemBounds.length; i++) {
+            if (menuItemBounds[i].contains(x, y)) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public void update() {
@@ -58,6 +84,26 @@ public class MenuScreen extends Screen {
         } else {
             if (keyPressTimer > 0) {
                 keyPressTimer--;
+            }
+        }
+
+        // moving the mouse over an item hovers it, clicking an item chooses it
+        int mouseX = Mouse.getX();
+        int mouseY = Mouse.getY();
+        if (mouseX != lastMouseX || mouseY != lastMouseY) {
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+            int hovered = getMenuItemAt(mouseX, mouseY);
+            if (hovered != -1) {
+                currentMenuItemHovered = hovered;
+            }
+        }
+        if (Mouse.consumeLeftClick()) {
+            int clicked = getMenuItemAt(mouseX, mouseY);
+            if (clicked != -1) {
+                currentMenuItemHovered = clicked;
+                chooseMenuItem(clicked);
+                return;
             }
         }
 
@@ -94,15 +140,20 @@ public class MenuScreen extends Screen {
             keyLocker.unlockKey(Key.ENTER);
         }
         if (!keyLocker.isKeyLocked(Key.ENTER) && Keyboard.isKeyDown(Key.ENTER)) {
-            menuItemSelected = currentMenuItemHovered;
-            if (menuItemSelected == 0) {
-//                screenCoordinator.setGameState(GameState.LEVEL);
-                screenCoordinator.setGameState(GameState.LEVEL_SELECTOR);
-            } else if (menuItemSelected == 1) {
-                screenCoordinator.setGameState(GameState.CREDITS);
-            } else if (menuItemSelected == 2) {
-                screenCoordinator.setGameState(GameState.CONTROLS);
-            }
+            chooseMenuItem(currentMenuItemHovered);
+        }
+    }
+
+    // changes to the appropriate screen based on which menu item was chosen
+    private void chooseMenuItem(int item) {
+        menuItemSelected = item;
+        if (menuItemSelected == 0) {
+//            screenCoordinator.setGameState(GameState.LEVEL);
+            screenCoordinator.setGameState(GameState.LEVEL_SELECTOR);
+        } else if (menuItemSelected == 1) {
+            screenCoordinator.setGameState(GameState.CREDITS);
+        } else if (menuItemSelected == 2) {
+            screenCoordinator.setGameState(GameState.CONTROLS);
         }
     }
 

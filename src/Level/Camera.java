@@ -75,7 +75,7 @@ public class Camera extends Rectangle {
 
         if (shouldUpdateThisFrame) {
             for (Enemy enemy : activeEnemies) {
-            enemy.update(player);
+            enemy.updateEntity(player);
         }
 
         for (EnhancedMapTile enhancedMapTile : activeEnhancedMapTiles) {
