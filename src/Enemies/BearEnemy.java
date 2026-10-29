@@ -37,6 +37,8 @@ public class BearEnemy extends Enemy {
         this.endLocation = endLocation;
         this.startFacingDirection = facingDirection;
         this.movementSpeed = movementSpeed;
+        this.contactDamage = 35;
+        this.killHealAmount = 20;
         this.initialize();
     }
 

@@ -84,6 +84,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
                 map.draw(graphicsHandler);
                 ((Cat) player).drawTimeWarpOverlay(graphicsHandler);
                 player.draw(graphicsHandler);
+                ((Cat) player).drawHealthBar(graphicsHandler);
                 ((Cat) player).drawStaminaBar(graphicsHandler);
                 coordsDebugLabel.setText("X: " + player.getLocation().x + " | Y: " + player.getLocation().y);
                 coordsDebugLabel.draw(graphicsHandler);

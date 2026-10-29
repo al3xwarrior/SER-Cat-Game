@@ -37,6 +37,8 @@ public class SquirrelEnemy extends Enemy {
                 start.y, 1, new SpriteSheet(ImageLoader.load("SquirrelEnemy.png"), 30, 19), "WALK_LEFT");
         this.startFacingDirection = facingDirection;
         this.movementSpeed = movementSpeed;
+        this.contactDamage = 15;
+        this.killHealAmount = 5;
         this.leftBound = start.x;
         this.rightBound = end.x;
         this.hasPatrol = hasPatrol;

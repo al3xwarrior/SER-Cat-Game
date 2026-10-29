@@ -75,6 +75,18 @@ public abstract class Player extends GameObject {
     protected static final int INVINCIBILITY_FLICKER_WARNING_FRAMES = 90; // start flickering this many frames before invincibility ends, to warn the player
     protected int invincibilityFramesRemaining = 0;
 
+    // player health -- enemies take away health on touch instead of killing instantly, defeating enemies gives some back
+    protected final int maxHealth = 100;
+    protected int health = maxHealth;
+
+    // after getting hit the player is knocked away from the enemy and can't be hurt again for a short time (separate from the power-up invincibility)
+    protected static final int HURT_INVINCIBILITY_FRAMES = 30; // 0.5 seconds
+    protected static final int KNOCKBACK_STUN_FRAMES = 12; // how long air control is disabled after a knockback
+    protected static final float KNOCKBACK_SPEED_X = 7f;
+    protected static final float KNOCKBACK_JUMP_FORCE = 6f;
+    protected int hurtFramesRemaining = 0;
+    protected int knockbackStunFramesRemaining = 0;
+
     // image of whatever item the player currently has equipped (e.g. a hockey stick from a power-up), drawn alongside the player -- null if nothing is equipped
     protected BufferedImage equippedItemImage = null;
 
@@ -123,6 +135,7 @@ public abstract class Player extends GameObject {
         // if player is currently playing through level (has not won or lost)
         if (levelState == LevelState.RUNNING) {
             updateInvincibility();
+            updateHurtTimers();
 
             applyGravity();
 
@@ -346,8 +359,10 @@ public abstract class Player extends GameObject {
                 }
             }
 
-            // allows you to move left and right while in the air
-            if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
+            // allows you to move left and right while in the air (unless the player was just knocked back)
+            if (knockbackStunFramesRemaining > 0) {
+                // no air control while being knocked back
+            } else if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
                 // if you're trying moving in the same direction as your momentum
                 if (momentumX < 0) {
                     // if your momentum is lower than what it would be if you tried to move in that direction
@@ -579,12 +594,65 @@ public abstract class Player extends GameObject {
 
     // other entities can call this method to hurt the player
     public void hurtPlayer(MapEntity mapEntity) {
-        if (!isInvincible) {
-            // if map entity is an enemy, kill player on touch
-            if (mapEntity instanceof Enemy) {
-                setLevelState(LevelState.PLAYER_DEAD);
-            }
+        if (isInvincible || hurtFramesRemaining > 0) {
+            return;
         }
+
+        // if map entity is an enemy, player loses health and is knocked back, dying only once health runs out
+        if (mapEntity instanceof Enemy) {
+            health = Math.max(0, health - ((Enemy) mapEntity).getContactDamage());
+
+            if (health <= 0) {
+                setLevelState(LevelState.PLAYER_DEAD);
+                return;
+            }
+
+            hurtFramesRemaining = HURT_INVINCIBILITY_FRAMES;
+            knockBackFrom(mapEntity);
+        }
+    }
+
+    // pushes the player up and away from the given entity
+    protected void knockBackFrom(MapEntity mapEntity) {
+        float playerCenterX = getX() + getWidth() / 2f;
+        float entityCenterX = mapEntity.getX() + mapEntity.getWidth() / 2f;
+        float awayDirection = playerCenterX < entityCenterX ? -1f : 1f;
+
+        playerState = PlayerState.JUMPING;
+        airGroundState = AirGroundState.AIR;
+        stateFrames = 0f;
+
+        momentumX = KNOCKBACK_SPEED_X * awayDirection;
+        momentumY = 0f;
+        jumpForce = KNOCKBACK_JUMP_FORCE;
+
+        knockbackStunFramesRemaining = KNOCKBACK_STUN_FRAMES;
+    }
+
+    protected void updateHurtTimers() {
+        if (hurtFramesRemaining > 0) {
+            hurtFramesRemaining--;
+        }
+
+        if (knockbackStunFramesRemaining > 0) {
+            knockbackStunFramesRemaining--;
+        }
+    }
+
+    public void healPlayer(int amount) {
+        health = Math.min(maxHealth, health + amount);
+    }
+
+    public int getHealth() {
+        return health;
+    }
+
+    public int getMaxHealth() {
+        return maxHealth;
+    }
+
+    public float getHealthPercent() {
+        return (float) health / maxHealth;
     }
 
     // this is called by other entities if the player hurts the entity
@@ -738,6 +806,11 @@ public abstract class Player extends GameObject {
         if (levelState == LevelState.PLAYER_DEAD) {
             squash = 0;
             stretch = 0;
+        }
+
+        // blink while the player can't be hurt after taking a hit
+        if (hurtFramesRemaining > 0 && (hurtFramesRemaining / 3) % 2 == 0) {
+            return;
         }
 
         super.drawSquashStretch(graphicsHandler, squash, stretch, squashOffset, stretchOffset);

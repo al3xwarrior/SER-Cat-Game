@@ -50,6 +50,12 @@ public class Cat extends Player {
         protected final int timeWarpTintMaxAlpha = 70;
 
         protected final int staminaFailFlashDuration = 20;
+
+// health bar: lost health stays visible as a lighter "trail" that drains away shortly after a hit, and the bar pulses when health is low
+        protected final int healthTrailDelayFrames = 30;
+        protected final float healthTrailDrainPerFrame = 1f;
+        protected float healthTrail = 100f;
+        protected int healthTrailDelayRemaining = 0;
         protected int staminaFailFlashFramesRemaining = 0;
 
 
@@ -84,6 +90,51 @@ public class Cat extends Player {
         if (staminaFailFlashFramesRemaining > 0) {
             staminaFailFlashFramesRemaining--;
         }
+
+        updateHealthTrail();
+    }
+
+    public void updateHealthTrail() {
+        if (healthTrail < health) {
+            // healed: the trail just follows the health up
+            healthTrail = health;
+        } else if (healthTrail > health) {
+            if (hurtFramesRemaining == HURT_INVINCIBILITY_FRAMES - 1) {
+                // just got hit, wait a bit before the trail starts draining
+                healthTrailDelayRemaining = healthTrailDelayFrames;
+            }
+
+            if (healthTrailDelayRemaining > 0) {
+                healthTrailDelayRemaining--;
+            } else {
+                healthTrail = Math.max(health, healthTrail - healthTrailDrainPerFrame);
+            }
+        }
+    }
+
+    public void drawHealthBar(GraphicsHandler graphicsHandler) {
+        int barX = 35;
+        int barY = 25;
+        int barWidth = 150;
+        int barHeight = 14;
+
+        int filledWidth = (int) (barWidth * getHealthPercent());
+        int trailWidth = (int) (barWidth * (healthTrail / maxHealth));
+
+        Color fillColor = new Color(220, 40, 40);
+        Color borderColor = Color.black;
+
+        graphicsHandler.drawFilledRectangle(barX, barY, barWidth, barHeight, new Color(60, 60, 60, 200));
+
+        if (trailWidth > filledWidth) {
+            graphicsHandler.drawFilledRectangle(barX, barY, trailWidth, barHeight, new Color(255, 200, 200));
+        }
+
+        if (filledWidth > 0) {
+            graphicsHandler.drawFilledRectangle(barX, barY, filledWidth, barHeight, fillColor);
+        }
+
+        graphicsHandler.drawRectangle(barX, barY, barWidth, barHeight, borderColor, 2);
     }
 
     @Override
@@ -165,7 +216,7 @@ public class Cat extends Player {
 
     public void drawStaminaBar(GraphicsHandler graphicsHandler) {
         int barX = 35;
-        int barY = 35;
+        int barY = 47; // sits right under the health bar
         int barWidth = 100;
         int barHeight = 10;
 

@@ -9,6 +9,11 @@ public class Enemy extends MapEntity {
 
     private int health;
 
+    // how much health the player loses when touching this enemy, and how much the player gets back for defeating it
+    // subclasses can change these in their constructor
+    protected int contactDamage = 20;
+    protected int killHealAmount = 5;
+
     public Enemy(float x, float y, int health, SpriteSheet spriteSheet, String startingAnimation) {
         super(x, y, spriteSheet, startingAnimation);
         this.health = health;
@@ -56,7 +61,16 @@ public class Enemy extends MapEntity {
 
             if (this.health <= 0) {
                 this.mapEntityStatus = MapEntityStatus.REMOVED;
+                player.healPlayer(killHealAmount);
             }
         }
+    }
+
+    public int getContactDamage() {
+        return contactDamage;
+    }
+
+    public int getKillHealAmount() {
+        return killHealAmount;
     }
 }

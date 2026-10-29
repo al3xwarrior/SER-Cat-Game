@@ -37,6 +37,8 @@ public class BirdEnemy extends Enemy {
         this.leftBound = start.x;
         this.rightBound = end.x;
         this.movementSpeed = movementSpeed;
+        this.contactDamage = 20;
+        this.killHealAmount = 5;
         this.initialize();
     }
 
