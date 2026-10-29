@@ -25,11 +25,11 @@ public class Cat extends Player {
         protected final float maxStamina = 100f;
         protected final float staminaCostPercent = 25f;
 
-// stamina regeneration, refills from empty to full in staminaRegenSeconds, after a short delay since stamina was last used
+// stamina regen
         protected final float staminaRegenSeconds = 8f;
         protected final float staminaRegenPerFrame = maxStamina / (staminaRegenSeconds * Config.TARGET_FPS);
-        protected final int staminaRegenDelayFrames = Config.TARGET_FPS; // 1 second after a movement ability
-        protected final int timeWarpRegenDelayFrames = Config.TARGET_FPS * 3; // 3 seconds after the time warp ends
+        protected final int staminaRegenDelayFrames = Config.TARGET_FPS; // 1 second
+        protected final int timeWarpRegenDelayFrames = Config.TARGET_FPS * 3; // 3 seconds after time warp ends
         protected int regenDelayFramesRemaining = 0;
 
 // key to activate the stamina ability
@@ -42,20 +42,20 @@ public class Cat extends Player {
 
         protected int timeWarpFramesRemaining = 0;
 
-// visual feedback: the world gets tinted while time warping, and the stamina bar flashes red and shakes when a move fails from lack of stamina
-        protected final int timeWarpFadeFrames = 15; // how long the tint takes to fade in/out
-        protected final int timeWarpWarningFrames = 90; // tint flickers during the last 1.5 seconds of the warp
+// time warp tint and stamina bar flash
+        protected final int timeWarpFadeFrames = 15; // frames for the tint to fade in/out
+        protected final int timeWarpWarningFrames = 90; // flickers in the last 1.5 seconds
         protected int timeWarpOverlayFrames = 0;
         protected final Color timeWarpTintColor = new Color(90, 60, 200);
         protected final int timeWarpTintMaxAlpha = 70;
 
         protected final int staminaFailFlashDuration = 20;
 
-// health bar: lost health stays visible as a lighter "trail" that drains away shortly after a hit, and the bar pulses when health is low
+// health bar
         protected final int healthTrailDelayFrames = 30;
         protected final float healthTrailDrainPerFrame = 1f;
-        protected final float lowHealthPercent = 0.3f; // below this the health bar flashes and the screen edges glow red
-        protected final float criticalHealthPercent = 0.15f; // below this the warning pulses faster
+        protected final float lowHealthPercent = 0.3f; // low health warning starts here
+        protected final float criticalHealthPercent = 0.15f; // warning goes faster here
         protected float healthTrail = 100f;
         protected int healthTrailDelayRemaining = 0;
         protected int healthPulseFrames = 0;
@@ -101,11 +101,10 @@ public class Cat extends Player {
 
     public void updateHealthTrail() {
         if (healthTrail < health) {
-            // healed: the trail just follows the health up
             healthTrail = health;
         } else if (healthTrail > health) {
             if (hurtFramesRemaining == HURT_INVINCIBILITY_FRAMES - 1) {
-                // just got hit, wait a bit before the trail starts draining
+                // just got hit, wait a bit before the trail goes down
                 healthTrailDelayRemaining = healthTrailDelayFrames;
             }
 
@@ -129,7 +128,7 @@ public class Cat extends Player {
         Color fillColor = new Color(220, 40, 40);
         Color borderColor = Color.black;
 
-        // low health: flash the bar and its border as a warning
+        // flash the bar when health is low
         if (isLowHealth() && (healthPulseFrames / getLowHealthFlashFrames()) % 2 == 0) {
             fillColor = new Color(255, 110, 110);
             borderColor = Color.white;
@@ -152,22 +151,22 @@ public class Cat extends Player {
         return health > 0 && getHealthPercent() <= lowHealthPercent;
     }
 
-    // how many frames each low health flash lasts, faster when health is critical
+    // flashes faster when health is really low
     protected int getLowHealthFlashFrames() {
         return getHealthPercent() <= criticalHealthPercent ? 8 : 15;
     }
 
-    // pulsing red glow around the edges of the screen while health is low
+    // red glow around the screen when health is low
     public void drawLowHealthWarning(GraphicsHandler graphicsHandler) {
         if (!isLowHealth()) {
             return;
         }
 
-        // smooth pulse between 0 and 1, one full pulse every 2 flashes of the health bar
+        // goes between 0 and 1 so the glow pulses
         double pulse = (Math.sin(healthPulseFrames * Math.PI / getLowHealthFlashFrames()) + 1) / 2;
         int maxAlpha = (int) (40 + 50 * pulse);
 
-        // layers of see-through red bands that get fainter towards the middle of the screen, which looks like a soft glow
+        // draws a few red bands that get lighter towards the middle
         int layers = 6;
         int layerThickness = 6;
         int width = ScreenManager.getScreenWidth();
@@ -200,7 +199,7 @@ public class Cat extends Player {
         }
     }
 
-    // stamina does not regenerate while time warping, otherwise the time warp would pay for itself
+    // no stamina regen while time warping
     public void updateStaminaRegen() {
         if (isTimeWarping()) {
             return;
@@ -264,7 +263,7 @@ public class Cat extends Player {
 
     public void drawStaminaBar(GraphicsHandler graphicsHandler) {
         int barX = 35;
-        int barY = 47; // sits right under the health bar
+        int barY = 47; // under the health bar
         int barWidth = 100;
         int barHeight = 10;
 
@@ -273,7 +272,7 @@ public class Cat extends Player {
         Color fillColor = new Color(80, 200, 225);
         Color borderColor = Color.black;
 
-        // not enough stamina for a move: shake the bar side to side and flash it red
+        // not enough stamina, shake the bar and flash it red
         if (staminaFailFlashFramesRemaining > 0) {
                 barX += (staminaFailFlashFramesRemaining % 4 < 2) ? 3 : -3;
                 if (staminaFailFlashFramesRemaining % 8 < 4) {
@@ -290,14 +289,14 @@ public class Cat extends Player {
 
         graphicsHandler.drawRectangle(barX, barY, barWidth, barHeight, borderColor, 2);
 
-        // thin bar under the stamina bar showing how much time warp is left
+        // small bar for how much time warp is left
         if (isTimeWarping()) {
                 int warpWidth = (int) (barWidth * ((float) timeWarpFramesRemaining / timeWarpDuration));
                 graphicsHandler.drawFilledRectangle(barX, barY + barHeight + 4, warpWidth, 4, timeWarpTintColor.brighter());
         }
 }
 
-    // tints the whole screen while time warping, should be drawn after the map but before the cat so the cat stays untinted
+    // tints the screen while time warping (drawn before the cat so the cat isn't tinted)
     public void drawTimeWarpOverlay(GraphicsHandler graphicsHandler) {
         if (timeWarpOverlayFrames <= 0) {
             return;
@@ -305,7 +304,7 @@ public class Cat extends Player {
 
         int alpha = timeWarpTintMaxAlpha * timeWarpOverlayFrames / timeWarpFadeFrames;
 
-        // flicker as a warning that the time warp is about to run out
+        // flicker when the time warp is almost over
         if (isTimeWarping() && timeWarpFramesRemaining < timeWarpWarningFrames && (timeWarpFramesRemaining / 6) % 2 == 0) {
             alpha /= 2;
         }

@@ -11,12 +11,12 @@ public class Enemy extends MapEntity {
 
     private int health;
 
-    // how much health the player loses when touching this enemy, and how much the player gets back for defeating it
-    // subclasses can change these in their constructor
+    // damage this enemy does to the player and how much health you get back for killing it
+    // each enemy can change these in its constructor
     protected int contactDamage = 20;
     protected int killHealAmount = 5;
 
-    // chance (0 to 1) that this enemy drops a hockey stick power-up when defeated
+    // chance of dropping a hockey stick when killed (0.1 = 10%)
     protected float hockeyStickDropChance = 0.1f;
     private static final Random random = new Random();
 

@@ -56,7 +56,7 @@ public abstract class Map {
     protected ArrayList<EnhancedMapTile> enhancedMapTiles;
     protected ArrayList<NPC> npcs;
 
-    // on screen hints shown while the player is in certain parts of the map, a map subclass adds these with addHintZone
+    // hints that show up in certain parts of the map (add them with addHintZone)
     protected ArrayList<HintZone> hintZones = new ArrayList<>();
 
     // if set to false, camera will not move as player moves
@@ -332,12 +332,12 @@ public abstract class Map {
         this.enhancedMapTiles.add(enhancedMapTile);
     }
 
-    // shows the given text on screen while the player is between the two tile columns (inclusive)
+    // shows the text while the player is between these two tiles
     public void addHintZone(int startTileX, int endTileX, String text) {
         hintZones.add(new HintZone(startTileX * tileset.getScaledSpriteWidth(), (endTileX + 1) * tileset.getScaledSpriteWidth(), text));
     }
 
-    // returns the hint text for wherever the player currently is, or null if there is no hint there
+    // returns the hint where the player is, or null if there isn't one
     public String getHintAt(Player player) {
         for (HintZone hintZone : hintZones) {
             if (hintZone.contains(player)) {

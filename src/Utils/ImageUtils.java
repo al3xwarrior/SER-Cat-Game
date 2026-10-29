@@ -6,11 +6,11 @@ import java.util.HashMap;
 
 // This class has some useful image methods that are used when loading in images to the game
 public class ImageUtils {
-	// cache of tinted images so the same image/color combination isn't re-rendered every frame
+	// saves tinted images so we don't make them again every frame
 	private static final HashMap<String, BufferedImage> tintCache = new HashMap<>();
 
-	// returns a copy of the given image tinted with the given color, preserving the image's original transparency/silhouette
-	// used to give the player a "powered up" look (e.g. while invincible) without needing separate sprite art
+	// returns a tinted copy of the image
+	// used for the invincibility glow
 	public static BufferedImage tintImage(BufferedImage image, Color tintColor) {
 		String cacheKey = System.identityHashCode(image) + ":" + tintColor.getRGB();
 		if (tintCache.containsKey(cacheKey)) {

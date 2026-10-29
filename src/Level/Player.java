@@ -73,24 +73,24 @@ public abstract class Player extends GameObject {
     protected boolean isInvincible = false; // if true, player cannot be hurt by enemies (good for testing)
     protected boolean isTimeWarping = false; // if true, player is currently warping time
 
-    // values used to handle a timed invincibility power-up (see makeInvincible)
+    // values for the invincibility power-up
     protected static final Color INVINCIBILITY_TINT_COLOR = new Color(130, 220, 255, 150);
-    protected static final int INVINCIBILITY_FLICKER_WARNING_FRAMES = 90; // start flickering this many frames before invincibility ends, to warn the player
+    protected static final int INVINCIBILITY_FLICKER_WARNING_FRAMES = 90; // starts flickering 1.5 seconds before it ends
     protected int invincibilityFramesRemaining = 0;
 
-    // player health -- enemies take away health on touch instead of killing instantly, defeating enemies gives some back
+    // player health
     protected final int maxHealth = 100;
     protected int health = maxHealth;
 
-    // after getting hit the player is knocked away from the enemy and can't be hurt again for a short time (separate from the power-up invincibility)
+    // knockback and i-frames after getting hit (not the same as the hockey stick invincibility)
     protected static final int HURT_INVINCIBILITY_FRAMES = 30; // 0.5 seconds
-    protected static final int KNOCKBACK_STUN_FRAMES = 12; // how long air control is disabled after a knockback
+    protected static final int KNOCKBACK_STUN_FRAMES = 12; // frames you can't move after getting knocked back
     protected static final float KNOCKBACK_SPEED_X = 7f;
     protected static final float KNOCKBACK_JUMP_FORCE = 6f;
     protected int hurtFramesRemaining = 0;
     protected int knockbackStunFramesRemaining = 0;
 
-    // image of whatever item the player currently has equipped (e.g. a hockey stick from a power-up), drawn alongside the player -- null if nothing is equipped
+    // item the player is holding (like the hockey stick), null if nothing
     protected BufferedImage equippedItemImage = null;
 
     public Player(SpriteSheet spriteSheet, float x, float y, String startingAnimationName) {
@@ -369,9 +369,9 @@ public abstract class Player extends GameObject {
                 }
             }
 
-            // allows you to move left and right while in the air (unless the player was just knocked back)
+            // allows you to move left and right while in the air
             if (knockbackStunFramesRemaining > 0) {
-                // no air control while being knocked back
+                // can't move while getting knocked back
             } else if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
                 // if you're trying moving in the same direction as your momentum
                 if (momentumX < 0) {
@@ -617,7 +617,7 @@ public abstract class Player extends GameObject {
             return;
         }
 
-        // if map entity is an enemy, player loses health and is knocked back, dying only once health runs out
+        // if map entity is an enemy, player takes damage and gets knocked back. only dies when health hits 0
         if (mapEntity instanceof Enemy) {
             health = Math.max(0, health - ((Enemy) mapEntity).getContactDamage());
 
@@ -631,7 +631,7 @@ public abstract class Player extends GameObject {
         }
     }
 
-    // pushes the player up and away from the given entity
+    // knocks the player up and away from what hit them
     protected void knockBackFrom(MapEntity mapEntity) {
         float playerCenterX = getX() + getWidth() / 2f;
         float entityCenterX = mapEntity.getX() + mapEntity.getWidth() / 2f;
@@ -687,14 +687,14 @@ public abstract class Player extends GameObject {
         makeInvincible(invincibilityFramesRemaining + 30);
     }
 
-    // makes the player invincible (immune to hurtPlayer) for the given number of frames, and gives it the invincibility glow
+    // makes the player invincible for some frames and gives them the glow
     public void makeInvincible(int frames) {
         isInvincible = true;
         invincibilityFramesRemaining = frames;
         setTintColor(INVINCIBILITY_TINT_COLOR);
     }
 
-    // counts down the player's remaining invincibility time, flickering the glow briefly before it ends as a warning
+    // counts down the invincibility, the glow flickers right before it runs out
     protected void updateInvincibility() {
         if (!isInvincible) {
             return;
@@ -711,7 +711,7 @@ public abstract class Player extends GameObject {
         }
     }
 
-    // visually equips the player with the given item image, drawn alongside the player until unequipItem is called
+    // gives the player an item to hold (only visual)
     public void equipItem(BufferedImage itemImage) {
         this.equippedItemImage = itemImage;
     }
@@ -827,17 +827,17 @@ public abstract class Player extends GameObject {
             stretch = 0;
         }
 
-        // blink while the player can't be hurt after taking a hit
+        // player blinks after getting hit
         if (hurtFramesRemaining > 0 && (hurtFramesRemaining / 3) % 2 == 0) {
             return;
         }
 
         super.drawSquashStretch(graphicsHandler, squash, stretch, squashOffset, stretchOffset);
 
-        // draws whatever item the player currently has equipped (e.g. a power-up's hockey stick) just in front of the player, facing the same direction
+        // draws the item the player is holding (like the hockey stick)
         if (equippedItemImage != null) {
             int itemSize = Math.round(getHeight() * .6f);
-            int overlap = Math.round(itemSize * .3f); // how far the item tucks into the player, so it reads as "held" instead of floating off to the side
+            int overlap = Math.round(itemSize * .3f); // so it looks like the cat is holding it
             int drawX = Math.round(getCalibratedXLocation()) + (facingDirection == Direction.RIGHT ? getWidth() - overlap : overlap - itemSize);
             int drawY = Math.round(getCalibratedYLocation()) + Math.round(getHeight() * .2f);
             // ImageEffect imageEffect = facingDirection == Direction.RIGHT ? ImageEffect.NONE : ImageEffect.FLIP_HORIZONTAL; 

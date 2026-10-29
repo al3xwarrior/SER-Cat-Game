@@ -28,7 +28,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
 
     protected SpriteFont coordsDebugLabel;
 
-    // map hints (see Map.addHintZone) fade in and out at the top of the screen
+    // hint text at the top of the screen
     protected static final Font HINT_FONT = new Font("Arial", Font.BOLD, 20);
     protected static final int HINT_Y = 110;
     protected static final float HINT_FADE_PER_FRAME = 0.08f;
@@ -110,7 +110,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
         }
     }
 
-    // hints are hidden while time warping, since the player is already doing what they say
+    // hide the hint while time warping
     protected void updateHint() {
         String currentHint = player.isTimeWarping() ? null : map.getHintAt(player);
 
@@ -157,7 +157,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
         initialize();
     }
 
-    // beating Level 1 continues straight into Level 2, every other level goes back to the menu
+    // after level 1 go to level 2, otherwise go back to the menu
     public void goToNextLevel() {
         if (screenCoordinator.getSelectedMapName().equals("Level1Map")) {
             screenCoordinator.setSelectedMapName("Level2Map");

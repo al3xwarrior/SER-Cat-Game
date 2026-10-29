@@ -45,7 +45,7 @@ public class GraphicsHandler {
         }
     }
 
-    // draws the image tinted with the given color (or untinted if tintColor is null) -- used for things like the player's invincibility glow
+    // draws the image with a color tint on top of it (used for the invincibility glow)
     public void drawImage(BufferedImage image, int x, int y, int width, int height, ImageEffect imageEffect, Color tintColor) {
         BufferedImage imageToDraw = tintColor != null ? ImageUtils.tintImage(image, tintColor) : image;
         drawImage(imageToDraw, x, y, width, height, imageEffect);

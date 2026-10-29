@@ -8,9 +8,9 @@ import Utils.Point;
 
 import java.awt.image.BufferedImage;
 
-// Grants the player temporary invincibility and visually equips them with a hockey stick for the duration
+// hockey stick power-up, makes the player invincible for a few seconds
 public class HockeyStickPowerup extends Powerup {
-    private static final int INVINCIBILITY_DURATION_FRAMES = 240; // 4 seconds at the game's target 60 FPS
+    private static final int INVINCIBILITY_DURATION_FRAMES = 240; // 4 seconds
 
     private final BufferedImage hockeyStickImage;
 
@@ -23,9 +23,9 @@ public class HockeyStickPowerup extends Powerup {
         this.hockeyStickImage = hockeyStickImage;
     }
 
-    // creates a hockey stick that drops out of the given enemy when it is defeated
+    // makes a hockey stick that drops from a dead enemy
     public static HockeyStickPowerup droppedBy(Enemy enemy) {
-        // the stick is 16x16 scaled by 3, center it on the enemy and line its bottom up with the enemy's bottom
+        // stick is 16x16 scaled by 3, put it in the middle of the enemy
         int size = 16 * 3;
         float x = enemy.getX() + enemy.getWidth() / 2f - size / 2f;
         float y = enemy.getY() + enemy.getHeight() - size;

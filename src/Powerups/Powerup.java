@@ -18,7 +18,7 @@ public abstract class Powerup extends EnhancedMapTile {
 
     private boolean collected = false;
 
-    // dropped power-ups (from a defeated enemy) fall to the ground and can't be picked up right away, so the player sees them drop
+    // power-ups dropped by enemies fall down and can't be picked up right away
     private static final float DROP_GRAVITY = 0.5f;
     private static final float DROP_MAX_FALL_SPEED = 10f;
     private static final int DROP_PICKUP_DELAY_FRAMES = 20;
@@ -40,7 +40,7 @@ public abstract class Powerup extends EnhancedMapTile {
             fallSpeed = Math.min(DROP_MAX_FALL_SPEED, fallSpeed + DROP_GRAVITY);
             moveYHandleCollision(fallSpeed);
 
-            // fell off the bottom of the map (e.g. dropped over a pit), nothing to pick up
+            // fell off the map
             if (map != null && getY() > map.getHeightPixels()) {
                 this.mapEntityStatus = MapEntityStatus.REMOVED;
                 return;
@@ -59,7 +59,7 @@ public abstract class Powerup extends EnhancedMapTile {
         }
     }
 
-    // stop falling once a dropped power-up lands on something solid
+    // stop falling when it hits the ground
     @Override
     public void onEndCollisionCheckY(boolean hasCollided, Direction direction, MapEntity entityCollidedWith) {
         if (hasCollided && direction == Direction.DOWN) {

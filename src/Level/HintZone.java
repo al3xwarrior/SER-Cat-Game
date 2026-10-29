@@ -1,13 +1,13 @@
 package Level;
 
-// A horizontal stretch of a map that shows a short hint on screen while the player is inside it
-// (e.g. telling the player they can use the time warp right before a section built around it)
+// part of a map that shows a hint on the screen while the player is in it
+// like telling the player to use the time warp
 public class HintZone {
     private final float startX;
     private final float endX;
     private final String text;
 
-    // startX and endX are in pixels (map coordinates)
+    // startX and endX are in pixels
     public HintZone(float startX, float endX, String text) {
         this.startX = startX;
         this.endX = endX;

@@ -25,7 +25,7 @@ public class Level1Map extends Map {
         super("level1_map.txt", "Level 1", new FreshTileset());
         playerStartPosition = getMapTile(3, 8).getLocation();
 
-        // introduces the time warp right before the bird storm (see loadEnemies), the flat ground before the storm is a safe spot to stop and use it
+        // tells the player about the time warp right before the bird storm
         addHintZone(130, 150, "Press SHIFT to slow down time!");
     }
 
@@ -67,8 +67,7 @@ public class Level1Map extends Map {
                     3.3f));
         }
 
-        // Time warp introduction: a "bird storm" of fast birds crossing the terrace at tiles 139-163 in three lanes.
-        // At full speed it's very hard to get through, while time warping the birds slow down to about normal bird speed.
+        // bird storm: really fast birds so you need the time warp to get through
         // {left edge, right edge, height above the trail, speed}
         float[][] birdStorm = {
                 {141, 162, 1, 9f}, {141, 162, 2, 10.5f}, {141, 162, 3, 8f}, {145, 158, 2, 9.5f}

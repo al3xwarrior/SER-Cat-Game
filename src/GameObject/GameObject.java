@@ -33,7 +33,7 @@ public class GameObject extends AnimatedSprite {
     // the map instance this game object "belongs" to.
     protected Map map;
 
-    // if set, this game object's sprite is drawn tinted with this color (e.g. to show an active power-up)
+    // color to tint the sprite with, null means no tint
     protected Color tintColor = null;
 
 

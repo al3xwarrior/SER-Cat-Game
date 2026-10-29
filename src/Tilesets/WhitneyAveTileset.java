@@ -10,8 +10,8 @@ import Utils.SlopeTileLayoutUtils;
 
 import java.util.ArrayList;
 
-// Tileset for Level 2 (Whitney Ave, Hamden), defined in the WhitneyAveTileset.png file
-// Tiles are laid out in the image 8 per row, in the same order they are added here, so a tile's index matches its spot in the image
+// tileset for level 2 (Whitney Ave)
+// 8 tiles per row in the image, same order as they're added here
 public class WhitneyAveTileset extends Tileset {
     private static final int COLUMNS = 8;
 
@@ -42,7 +42,7 @@ public class WhitneyAveTileset extends Tileset {
         mapTiles.add(tile(mapTiles, TileType.PASSABLE)); // 8 water top
         mapTiles.add(tile(mapTiles, TileType.WATER)); // 9 water
 
-        // buildings: red brick (Dickerman's), dark brick (Haven Beer), tan brick (Eli's)
+        // buildings
         mapTiles.add(tile(mapTiles, TileType.NOT_PASSABLE)); // 10 red brick wall
         mapTiles.add(tile(mapTiles, TileType.NOT_PASSABLE)); // 11 red brick window
         mapTiles.add(tile(mapTiles, TileType.NOT_PASSABLE)); // 12 dark brick wall
@@ -75,7 +75,7 @@ public class WhitneyAveTileset extends Tileset {
         mapTiles.add(tile(mapTiles, TileType.PASSABLE)); // 35 patio post
         mapTiles.add(tile(mapTiles, TileType.PASSABLE)); // 36 bench
 
-        // signs, each one is several tiles wide and read left to right
+        // signs (each one is a few tiles wide)
         for (int i = 0; i < 5; i++) {
             mapTiles.add(tile(mapTiles, TileType.PASSABLE)); // 37-41 WHITNEY AVE street sign
         }
@@ -94,7 +94,7 @@ public class WhitneyAveTileset extends Tileset {
         return mapTiles;
     }
 
-    // builds the tile that sits at the next free spot in the image
+    // makes the next tile in the image
     private MapTileBuilder tile(ArrayList<MapTileBuilder> mapTiles, TileType tileType) {
         int index = mapTiles.size();
         Frame frame = new FrameBuilder(getSubImage(index / COLUMNS, index % COLUMNS))
@@ -103,7 +103,7 @@ public class WhitneyAveTileset extends Tileset {
         return new MapTileBuilder(frame).withTileType(tileType);
     }
 
-    // a jump through platform whose standable part starts top pixels down and is height pixels tall
+    // jump through platform, top and height are in pixels
     private MapTileBuilder platform(ArrayList<MapTileBuilder> mapTiles, int top, int height) {
         int index = mapTiles.size();
         Frame frame = new FrameBuilder(getSubImage(index / COLUMNS, index % COLUMNS))
