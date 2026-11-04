@@ -90,6 +90,18 @@ public abstract class Player extends GameObject {
     protected int hurtFramesRemaining = 0;
     protected int knockbackStunFramesRemaining = 0;
 
+    // swimming values, the cat is slower in water and sinks slowly, jump swims up
+    protected static final float SWIM_SPEED = 3f;
+    protected static final float SWIM_ACCELERATION = 0.15f;
+    protected static final float SWIM_SINK_SPEED = 1.5f;
+    protected static final float SWIM_SINK_ACCELERATION = 0.12f;
+    protected static final float SWIM_STROKE = 5f;
+
+    // under water the pounce is a quick lunge forward instead (so you can hit fish)
+    protected static final float SWIM_LUNGE_SPEED = 7f;
+    protected static final int SWIM_LUNGE_FRAMES = 20;
+    protected int swimLungeFramesRemaining = 0;
+
     // item the player is holding (like the hockey stick), null if nothing
     protected BufferedImage equippedItemImage = null;
 
@@ -115,7 +127,7 @@ public abstract class Player extends GameObject {
         // if the player is grounded and they are not dashing, then we apply friction
         // we check for the dash because we want the beginning of the dash to be more smooth and snappy, applying friction to
         // the start of the dash will make it feel more sluggish
-        if (getAirGroundState() == AirGroundState.GROUND && playerState != PlayerState.DASHING) {
+        if (getAirGroundState() == AirGroundState.GROUND && playerState != PlayerState.DASHING && playerState != PlayerState.SWIMMING) {
             stateFrames = 0f;
             momentumX /= appliedFriction;
         }
@@ -141,6 +153,15 @@ public abstract class Player extends GameObject {
             updateHurtTimers();
 
             applyGravity();
+
+            // start swimming when the player gets in the water (a pounce keeps going until it hits something)
+            if (isInWater() && playerState != PlayerState.SWIMMING && playerState != PlayerState.POUNCING) {
+                playerState = PlayerState.SWIMMING;
+                swimLungeFramesRemaining = 0;
+                momentumY *= 0.3f;
+                jumpForce = 0f;
+                stateFrames = 0f;
+            }
 
             // update player's state and current actions, which includes things like determining how much it should move each frame and if its walking or jumping
             do {
@@ -204,6 +225,9 @@ public abstract class Player extends GameObject {
                 break;
             case DIVING:
                 playerDiving();
+                break;
+            case SWIMMING:
+                playerSwimming();
                 break;
         }
     }
@@ -449,6 +473,21 @@ public abstract class Player extends GameObject {
     protected void playerPouncing() {
         float modifier = facingDirection == Direction.RIGHT ? 1 : -1;
 
+        // swimming lunge
+        if (swimLungeFramesRemaining > 0) {
+            jumpForce = 0f;
+            momentumX = SWIM_LUNGE_SPEED * modifier;
+            momentumY = 0f;
+            moveAmountX = momentumX;
+            moveAmountY = 0f;
+            swimLungeFramesRemaining--;
+            if (swimLungeFramesRemaining == 0 || !isInWater()) {
+                swimLungeFramesRemaining = 0;
+                playerState = PlayerState.SWIMMING;
+            }
+            return;
+        }
+
         jumpForce = 0f;
         momentumX = 10f * modifier;
         momentumY = 10f;
@@ -457,6 +496,62 @@ public abstract class Player extends GameObject {
             makeInvincible(Math.max(30, invincibilityFramesRemaining));
             playerState = PlayerState.STANDING;
         }
+    }
+
+    // player SWIMMING logic
+    protected void playerSwimming() {
+        // got out of the water, if the player was swimming up they jump out
+        if (!isInWater()) {
+            playerState = PlayerState.JUMPING;
+            airGroundState = AirGroundState.AIR;
+            jumpsLeft = airJumps;
+            if (momentumY < 0) {
+                jumpForce = jumpHeight;
+            }
+            momentumY = 0f;
+            return;
+        }
+
+        // moving left and right is slower in water
+        float targetSpeed = 0f;
+        if (Keyboard.isKeyDown(MOVE_LEFT_KEY)) {
+            targetSpeed = -SWIM_SPEED;
+            facingDirection = Direction.LEFT;
+        } else if (Keyboard.isKeyDown(MOVE_RIGHT_KEY)) {
+            targetSpeed = SWIM_SPEED;
+            facingDirection = Direction.RIGHT;
+        }
+        momentumX += (targetSpeed - momentumX) * SWIM_ACCELERATION;
+
+        // press jump to swim up, otherwise sink slowly
+        if (Keyboard.isKeyDown(JUMP_KEY) && !keyLocker.isKeyLocked(JUMP_KEY)) {
+            keyLocker.lockKey(JUMP_KEY);
+            momentumY = -SWIM_STROKE;
+        }
+        momentumY = Math.min(SWIM_SINK_SPEED, momentumY + SWIM_SINK_ACCELERATION);
+
+        moveAmountX = momentumX;
+        moveAmountY = momentumY;
+
+        // pounce under water is a lunge forward so you can hit the fish
+        if (Keyboard.isKeyDown(POUNCE_KEY) && !keyLocker.isKeyLocked(POUNCE_KEY)) {
+            if (consumeStamina(10f)) {
+                keyLocker.lockKey(POUNCE_KEY);
+                swimLungeFramesRemaining = SWIM_LUNGE_FRAMES;
+                playerState = PlayerState.POUNCING;
+            }
+        }
+    }
+
+    // checks if the middle of the player is in a water tile
+    public boolean isInWater() {
+        if (map == null) {
+            return false;
+        }
+        int centerX = Math.round(getBounds().getX1()) + Math.round(getBounds().getWidth() / 2f);
+        int centerY = Math.round(getBounds().getY1()) + Math.round(getBounds().getHeight() / 2f);
+        MapTile currentMapTile = map.getTileByPosition(centerX, centerY);
+        return currentMapTile != null && currentMapTile.getTileType() == TileType.WATER;
     }
 
     // player DIVING logic
@@ -576,6 +671,9 @@ public abstract class Player extends GameObject {
             // sets animation to a CROUCH animation based on which way player is facing
             this.currentAnimationName = facingDirection == Direction.RIGHT ? "CROUCH_RIGHT" : "CROUCH_LEFT";
         }
+        else if (playerState == PlayerState.SWIMMING) {
+            this.currentAnimationName = facingDirection == Direction.RIGHT ? "SWIM_STAND_RIGHT" : "SWIM_STAND_LEFT";
+        }
         else if (playerState == PlayerState.JUMPING) {
             // if player is moving upwards, set player's animation to jump. if player moving downwards, set player's animation to fall
             if (lastAmountMovedY <= 0) {
@@ -597,7 +695,7 @@ public abstract class Player extends GameObject {
             if (hasCollided) {
                 momentumY = 0;
                 airGroundState = AirGroundState.GROUND;
-            } else if (stateFrames == 0 && playerState != PlayerState.POUNCING && playerState != PlayerState.DIVING) {
+            } else if (stateFrames == 0 && playerState != PlayerState.POUNCING && playerState != PlayerState.DIVING && playerState != PlayerState.SWIMMING) {
                 playerState = PlayerState.JUMPING;
                 airGroundState = AirGroundState.AIR;
             }
