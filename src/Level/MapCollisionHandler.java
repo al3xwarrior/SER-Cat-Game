@@ -181,6 +181,7 @@ public class MapCollisionHandler {
                 if (currentTile.getLayout().getDirection() == Direction.LEFT) {
                     int xLocationInTile = Math.round(gameObject.getBounds().getX2()) - Math.round(currentTile.getX());
                     int yLocationInTile = Math.round(gameObject.getBounds().getY2()) - Math.round(currentTile.getY());
+
                     if (currentTile.getLayout().getBounds()[yLocationInTile][xLocationInTile] == 0 && currentTile.getLayout().getBounds()[yLocationInTile + 1][xLocationInTile] == 1) {
                         slopeProximityStatus = SlopeProximityStatus.IN_SLOPE_LEFT;
                     }

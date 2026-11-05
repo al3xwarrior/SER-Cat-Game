@@ -7,8 +7,8 @@ import Level.TileLayout;
 public class SlopeTileLayoutUtils {
 
     // left 45 degree slope
-    public static TileLayout createLeft45SlopeLayout(int tileSize, int scale) {
-        int[][] slopeLayout = new int[(tileSize * scale)][(tileSize * scale)];
+    public static TileLayout createLeft45SlopeLayout(float tileSize, float scale) {
+        int[][] slopeLayout = new int[(int) (tileSize * scale)][(int) (tileSize * scale)];
         int col = slopeLayout[0].length - 1;
         for (int i = 0; i < slopeLayout.length; i++) {
             for (int j = col; j >= col - i; j--) {
@@ -19,8 +19,8 @@ public class SlopeTileLayoutUtils {
     }
 
     // right 45 degree slope
-    public static TileLayout createRight45SlopeLayout(int tileSize, int scale) {
-        int[][] slopeLayout = new int[(tileSize * scale)][(tileSize * scale)];
+    public static TileLayout createRight45SlopeLayout(float tileSize, float scale) {
+        int[][] slopeLayout = new int[(int) (tileSize * scale)][(int) (tileSize * scale)];
         int col = 0;
         for (int i = 0; i < slopeLayout.length; i++) {
             for (int j = 0; j <= col + i; j++) {
@@ -31,8 +31,9 @@ public class SlopeTileLayoutUtils {
     }
 
     // bottom piece of left 30 degree slope
-    public static TileLayout createBottomLeft30SlopeLayout(int tileSize, int scale) {
-        int[][] slopeLayout = new int[(tileSize * scale)][(tileSize * scale)];
+    public static TileLayout createBottomLeft30SlopeLayout(float tileSize, float scale) {
+        IO.println((int) (tileSize * scale));
+        int[][] slopeLayout = new int[(int) (tileSize * scale)][(int) (tileSize * scale)];
         int colCounter = 0;
         for (int i = slopeLayout.length - 1; i >= slopeLayout.length / 2; i--) {
             for (int j = colCounter; j < slopeLayout[i].length; j++) {

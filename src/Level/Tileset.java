@@ -22,7 +22,7 @@ public abstract class Tileset extends SpriteSheet {
         this.tiles = mapDefinedTilesToIndex();
     }
 
-    public Tileset(BufferedImage image, int tileWidth, int tileHeight, int tileScale) {
+    public Tileset(BufferedImage image, int tileWidth, int tileHeight, float tileScale) {
         super(image, tileWidth, tileHeight);
         this.tileScale = tileScale;
         this.tiles = mapDefinedTilesToIndex();

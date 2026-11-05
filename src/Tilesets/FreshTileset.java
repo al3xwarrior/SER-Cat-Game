@@ -14,7 +14,9 @@ import java.util.ArrayList;
 public class FreshTileset extends Tileset {
 
     public FreshTileset() {
-        super(ImageLoader.load("FreshTileset.png"), 16, 16, 3);
+        super(ImageLoader.load("FreshTileset32.png"), 32, 32, 1.5f);
+        // the problem is that when we make the array for the slope colision, we always round the scale BEFORE providing it to the array
+        // instead of rounding the scale, we can opt to round the size of the array AFTER applying the scale
     }
 
     @Override
@@ -78,7 +80,7 @@ public class FreshTileset extends Tileset {
         // left end branch
         Frame leftEndBranchFrame = new FrameBuilder(getSubImage(1, 5))
                 .withScale(tileScale)
-                .withBounds(0, 6, 16, 4)
+                .withBounds(0, 6, 32, 4)
                 .build();
 
         MapTileBuilder leftEndBranchTile = new MapTileBuilder(leftEndBranchFrame)
@@ -89,7 +91,7 @@ public class FreshTileset extends Tileset {
         // right end branch
         Frame rightEndBranchFrame = new FrameBuilder(getSubImage(1, 5))
                 .withScale(tileScale)
-                .withBounds(0, 6, 16, 4)
+                .withBounds(0, 6, 32, 4)
                 .withImageEffect(ImageEffect.FLIP_HORIZONTAL)
                 .build();
 
@@ -104,7 +106,7 @@ public class FreshTileset extends Tileset {
                 .build();
 
         MapTileBuilder treeTrunkTile = new MapTileBuilder(treeTrunkFrame)
-                .withTileType(TileType.NOT_PASSABLE);
+                .withTileType(TileType.PASSABLE);
 
         mapTiles.add(treeTrunkTile);
 
@@ -114,7 +116,7 @@ public class FreshTileset extends Tileset {
                 .build();
 
         MapTileBuilder treeTopLeavesTile = new MapTileBuilder(treeTopLeavesFrame)
-                .withTileType(TileType.NOT_PASSABLE);
+                .withTileType(TileType.PASSABLE);
 
         mapTiles.add(treeTopLeavesTile);
 
@@ -161,7 +163,7 @@ public class FreshTileset extends Tileset {
         // middle branch
         Frame middleBranchFrame = new FrameBuilder(getSubImage(2, 3))
                 .withScale(tileScale)
-                .withBounds(0, 6, 16, 4)
+                .withBounds(0, 6, 32, 4)
                 .build();
 
         MapTileBuilder middleBranchTile = new MapTileBuilder(middleBranchFrame)
@@ -225,7 +227,7 @@ public class FreshTileset extends Tileset {
 
         MapTileBuilder leftSlopeTile = new MapTileBuilder(leftSlopeFrame)
                 .withTileType(TileType.SLOPE)
-                .withTileLayout(SlopeTileLayoutUtils.createLeft45SlopeLayout(spriteWidth, (int) tileScale));
+                .withTileLayout(SlopeTileLayoutUtils.createLeft45SlopeLayout(spriteWidth, tileScale));
 
         mapTiles.add(leftSlopeTile);
 
@@ -236,7 +238,7 @@ public class FreshTileset extends Tileset {
 
         MapTileBuilder rightSlopeTile = new MapTileBuilder(rightSlopeFrame)
                 .withTileType(TileType.SLOPE)
-                .withTileLayout(SlopeTileLayoutUtils.createRight45SlopeLayout(spriteWidth, (int) tileScale));
+                .withTileLayout(SlopeTileLayoutUtils.createRight45SlopeLayout(spriteWidth, tileScale));
 
         mapTiles.add(rightSlopeTile);
 
@@ -247,7 +249,7 @@ public class FreshTileset extends Tileset {
 
         MapTileBuilder leftStairsBottomTile = new MapTileBuilder(leftStairsBottomFrame)
                 .withTileType(TileType.SLOPE)
-                .withTileLayout(SlopeTileLayoutUtils.createBottomLeft30SlopeLayout(spriteWidth, (int) tileScale));
+                .withTileLayout(SlopeTileLayoutUtils.createBottomLeft30SlopeLayout(spriteWidth, tileScale));
 
         mapTiles.add(leftStairsBottomTile);
 
@@ -262,6 +264,26 @@ public class FreshTileset extends Tileset {
 
         mapTiles.add(leftStairsTopTile);
 
+        // slope gap left
+        Frame slopeGapLeftFrame = new FrameBuilder(getSubImage(4, 3))
+                .withScale(tileScale)
+                .build();
+
+        MapTileBuilder slopeGapLeftTile = new MapTileBuilder(slopeGapLeftFrame)
+                .withTileType(TileType.NOT_PASSABLE);
+
+        mapTiles.add(slopeGapLeftTile);
+
+        // slope gap right
+        Frame slopeGapRightFrame = new FrameBuilder(getSubImage(4, 4))
+                .withScale(tileScale)
+                .build();
+
+        MapTileBuilder slopeGapRightTile = new MapTileBuilder(slopeGapRightFrame)
+                .withTileType(TileType.NOT_PASSABLE);
+
+        mapTiles.add(slopeGapRightTile);
+        
         // Scenery versions of the tree tiles. They let a fast-moving player
         // pass through the forest without stopping at every trunk or crown.
         mapTiles.add(new MapTileBuilder(treeTrunkFrame)); // 21
