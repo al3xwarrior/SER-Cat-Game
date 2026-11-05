@@ -2,6 +2,7 @@ package Game;
 
 import Engine.GameWindow;
 import Engine.ScreenManager;
+import Music.MusicPlayer;
 
 /*
  * The game starts here
@@ -10,7 +11,13 @@ import Engine.ScreenManager;
  */
 public class Game {
 
+    private static MusicPlayer musicPlayer;
+
     public static void main(String[] args) {
+        //inits music
+        musicPlayer = new MusicPlayer();
+        //starts playing the song
+        musicPlayer.play();
         new Game();
     }
 
