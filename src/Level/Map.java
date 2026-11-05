@@ -3,8 +3,8 @@ package Level;
 import Engine.Config;
 import Engine.GraphicsHandler;
 import Engine.ScreenManager;
+import GameObject.ParallaxLayer;
 import Utils.Point;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -65,6 +65,9 @@ public abstract class Map {
     // map tiles in map that are animated
     protected ArrayList<MapTile> animatedMapTiles;
 
+    // parallax layers
+    protected ArrayList<ParallaxLayer> parallaxLayers;
+
     protected String displayName;
 
     public Map(String mapFileName, String displayName, Tileset tileset) {
@@ -79,6 +82,7 @@ public abstract class Map {
         this.xMidPoint = ScreenManager.getScreenWidth() / 2;
         this.yMidPoint = (ScreenManager.getScreenHeight() / 2);
         this.playerStartPosition = new Point(0, 0);
+        this.parallaxLayers = new ArrayList<>();
     }
 
     // sets up map by reading in the map file to create the tile map

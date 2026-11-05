@@ -3,7 +3,6 @@ package Builders;
 import GameObject.Frame;
 import GameObject.ImageEffect;
 import GameObject.Rectangle;
-
 import java.awt.image.BufferedImage;
 
 // Builder class to instantiate a Frame class

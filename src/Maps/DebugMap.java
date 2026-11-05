@@ -16,11 +16,14 @@ import Utils.Direction;
 import java.util.ArrayList;
 import java.util.Random;
 
+// levels will be able to set up to three layers as a parallax
+// layer 1 will be the closest and layer 3 will be the farthest, with layer 2 in-between
+
 public class DebugMap extends Map {
     public DebugMap() {
         super("debug_map.txt", "Debug Map", new FreshTileset());
         this.playerStartPosition = getMapTile(2, 11).getLocation();
-    }
+     }
 
     @Override
     public ArrayList<Enemy> loadEnemies() {
