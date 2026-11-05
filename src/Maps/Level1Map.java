@@ -7,6 +7,7 @@ import Enemies.DanBoss;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
 import EnhancedMapTiles.HorizontalMovingPlatform;
+import GameObject.ParallaxLayer;
 import GameObject.Rectangle;
 import Level.Enemy;
 import Level.EnhancedMapTile;
@@ -26,6 +27,10 @@ public class Level1Map extends Map {
     public Level1Map() {
         super("level1_map.txt", "Level 1", new FreshTileset());
         playerStartPosition = getMapTile(3, 8).getLocation();
+
+        parallaxLayers.add(new ParallaxLayer(ImageLoader.load("MtCarmelParallaxLayer3.png")));
+        parallaxLayers.add(new ParallaxLayer(ImageLoader.load("MtCarmelParallaxLayer2.png")));
+        parallaxLayers.add(new ParallaxLayer(ImageLoader.load("MtCarmelParallaxLayer1.png")));
 
         // tells the player about the time warp right before the bird storm
         addHintZone(130, 150, "Press SHIFT to slow down time!");

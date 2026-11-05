@@ -8,7 +8,6 @@ import GameObject.ImageEffect;
 import Level.TileType;
 import Level.Tileset;
 import Utils.SlopeTileLayoutUtils;
-
 import java.util.ArrayList;
 
 // This class represents a "common" tileset of standard tiles defined in the CommonTileset.png file
@@ -37,7 +36,8 @@ public class CommonTileset extends Tileset {
                 .withScale(tileScale)
                 .build();
 
-        MapTileBuilder skyTile = new MapTileBuilder(skyFrame);
+        MapTileBuilder skyTile = new MapTileBuilder(skyFrame)
+                .withTileType(TileType.BACKGROUND);
 
         mapTiles.add(skyTile);
 

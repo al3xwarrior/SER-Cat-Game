@@ -7,7 +7,6 @@ import GameObject.Frame;
 import Level.TileType;
 import Level.Tileset;
 import Utils.SlopeTileLayoutUtils;
-
 import java.util.ArrayList;
 
 // tileset for level 2 (Whitney Ave)
@@ -89,7 +88,7 @@ public class WhitneyAveTileset extends Tileset {
             mapTiles.add(tile(mapTiles, TileType.NOT_PASSABLE)); // 50-54 DICKERMAN'S
         }
 
-        mapTiles.add(tile(mapTiles, TileType.PASSABLE)); // 55 sky
+        mapTiles.add(tile(mapTiles, TileType.BACKGROUND)); // 55 sky
 
         return mapTiles;
     }

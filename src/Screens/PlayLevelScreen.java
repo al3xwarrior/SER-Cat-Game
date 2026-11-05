@@ -1,17 +1,21 @@
 package Screens;
 
+import Engine.Config;
 import Engine.GraphicsHandler;
+import Engine.Key;
+import Engine.KeyLocker;
+import Engine.Keyboard;
 import Engine.Screen;
 import Engine.ScreenManager;
 import Game.GameState;
 import Game.ScreenCoordinator;
+import Level.LevelState;
 import Level.Map;
 import Level.Player;
 import Level.PlayerListener;
 import MapEditor.EditorMaps;
 import Players.Cat;
 import SpriteFont.SpriteFont;
-
 import java.awt.*;
 import java.awt.font.FontRenderContext;
 
@@ -22,11 +26,17 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
     protected Player player;
     protected PlayLevelScreenState playLevelScreenState;
     protected int screenTimer;
+    protected int levelTimer = 15;
     protected LevelClearedScreen levelClearedScreen;
     protected LevelLoseScreen levelLoseScreen;
     protected boolean levelCompletedStateChangeStart;
+    protected KeyLocker keyLocker = new KeyLocker();
+
+    private float timeDifference = 0f;
+    private long previousTime = System.nanoTime();
 
     protected SpriteFont coordsDebugLabel;
+    protected SpriteFont timerLabel;
 
     // hint text at the top of the screen
     protected static final Font HINT_FONT = new Font("Arial", Font.BOLD, 20);
@@ -55,10 +65,26 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
         // debug stuff - alex
         this.coordsDebugLabel = new SpriteFont("X: 1 | Y: 1", 0, 0, "Times New Roman", 24, Color.WHITE);
 
+        // setup timer
+        this.timerLabel = new SpriteFont("TIME 000", ScreenManager.getScreenWidth() - 120, 0, "Arial", 24, Color.WHITE);
+        this.levelTimer = 300;
+
         this.playLevelScreenState = PlayLevelScreenState.RUNNING;
+
+        // an ESC press that was already held when the level started shouldn't send the player straight back out
+        keyLocker.lockKey(Key.ESC);
     }
 
     public void update() {
+        // ESC leaves the level and goes back to the main menu (the lose screen handles ESC itself)
+        if (Keyboard.isKeyUp(Key.ESC)) {
+            keyLocker.unlockKey(Key.ESC);
+        }
+        if (playLevelScreenState != PlayLevelScreenState.LEVEL_LOSE && Keyboard.isKeyDown(Key.ESC) && !keyLocker.isKeyLocked(Key.ESC)) {
+            goBackToMenu();
+            return;
+        }
+
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the platformer level going
@@ -66,6 +92,22 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
                 player.update();
                 map.update(player);
                 updateHint();
+
+                // this part of the code decrements the timer
+                if (levelTimer > 0) {
+                    timeDifference += (System.nanoTime() - previousTime) / (1000000000 / (float) Config.TARGET_FPS);
+                    previousTime = System.nanoTime();
+
+                    if (timeDifference >= Config.TARGET_FPS) {
+                        levelTimer--;
+                        timeDifference = 0f;
+
+                        if (levelTimer <= 0) {
+                            player.setLevelState(LevelState.PLAYER_DEAD);
+                        }
+                    }
+                }
+
                 break;
             // if level has been completed, bring up the level cleared screen
             case LEVEL_COMPLETED:
@@ -100,6 +142,8 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
                 drawHint(graphicsHandler);
                 coordsDebugLabel.setText("X: " + player.getLocation().x + " | Y: " + player.getLocation().y);
                 coordsDebugLabel.draw(graphicsHandler);
+                timerLabel.setText(String.format("TIME: %03d", levelTimer));
+                timerLabel.draw(graphicsHandler);
                 break;
             case LEVEL_COMPLETED:
                 levelClearedScreen.draw(graphicsHandler);

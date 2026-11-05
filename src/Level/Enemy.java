@@ -102,6 +102,10 @@ public class Enemy extends MapEntity {
 
     public void update(Player player) {
         super.update();
+        if (player.playerState == PlayerState.POUNCING && intersects(player.getPounceAttackBounds())) {
+            touchedPlayer(player);
+            return;
+        }
         if (intersects(player)) {
             touchedPlayer(player);
         }

@@ -36,7 +36,8 @@ public class FreshTileset extends Tileset {
                 .withScale(tileScale)
                 .build();
 
-        MapTileBuilder skyTile = new MapTileBuilder(skyFrame);
+        MapTileBuilder skyTile = new MapTileBuilder(skyFrame)
+                .withTileType(TileType.BACKGROUND);
 
         mapTiles.add(skyTile);
 

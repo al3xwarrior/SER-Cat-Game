@@ -6,6 +6,7 @@ import Engine.KeyLocker;
 import Engine.Keyboard;
 import GameObject.GameObject;
 import GameObject.ImageEffect;
+import GameObject.Rectangle;
 import GameObject.SpriteSheet;
 import Utils.AirGroundState;
 import Utils.Direction;
@@ -493,7 +494,6 @@ public abstract class Player extends GameObject {
         momentumY = 10f;
 
         if (airGroundState == AirGroundState.GROUND) {
-            makeInvincible(Math.max(30, invincibilityFramesRemaining));
             playerState = PlayerState.STANDING;
         }
     }
@@ -882,6 +882,16 @@ public abstract class Player extends GameObject {
 
     public PlayerState getPlayerState() {
         return playerState;
+    }
+
+    // Separate from the body bounds so pouncing does not change terrain collision.
+    public Rectangle getPounceAttackBounds() {
+        Rectangle body = getBounds();
+        int reach = 16;
+        int verticalPadding = 4;
+        float left = facingDirection == Direction.LEFT ? body.getX1() - reach : body.getX1();
+        return new Rectangle(left, body.getY1() - verticalPadding,
+                body.getWidth() + reach, body.getHeight() + verticalPadding * 2);
     }
 
     public void setPlayerState(PlayerState playerState) {

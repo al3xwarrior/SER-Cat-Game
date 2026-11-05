@@ -3,8 +3,8 @@ package Level;
 import Engine.GraphicsHandler;
 import Engine.ScreenManager;
 import GameObject.GameObject;
+import GameObject.ParallaxLayer;
 import GameObject.Rectangle;
-
 import java.awt.*;
 import java.util.ArrayList;
 
@@ -163,6 +163,8 @@ public class Camera extends Rectangle {
     }
 
     public void draw(GraphicsHandler graphicsHandler) {
+        drawBackgroundTiles(graphicsHandler);
+        drawParallaxLayers(graphicsHandler);
         drawMapTiles(graphicsHandler);
         drawMapEntities(graphicsHandler);
     }
@@ -175,10 +177,41 @@ public class Camera extends Rectangle {
         for (int i = tileIndex.y - 1; i <= tileIndex.y + height + 1; i++) {
             for (int j = tileIndex.x - 1; j <= tileIndex.x + width + 1; j++) {
                 MapTile tile = map.getMapTile(j, i);
-                if (tile != null) {
+                if (tile != null && tile.getTileType() != TileType.BACKGROUND) {
                     tile.draw(graphicsHandler);
                 }
             }
+        }
+    }
+
+    public void drawBackgroundTiles(GraphicsHandler graphicsHandler) {
+        Point tileIndex = getTileIndexByCameraPosition();
+        for (int i = tileIndex.y - 1; i <= tileIndex.y + height + 1; i++) {
+            for (int j = tileIndex.x - 1; j <= tileIndex.x + width + 1; j++) {
+                MapTile tile = map.getMapTile(j, i);
+                if (tile != null && tile.getTileType() == TileType.BACKGROUND) {
+                    tile.draw(graphicsHandler);
+                }
+            }
+        }
+    }
+
+    public void drawParallaxLayers(GraphicsHandler graphicsHandler) {
+        ArrayList<ParallaxLayer> layers = map.parallaxLayers;
+
+        float cameraHorizontalProgression = this.getX() / map.getEndBoundX();
+        float cameraVerticalProgression = this.getY() / map.getEndBoundY();
+
+        for (int i = 0; i < layers.size(); i++) {
+            ParallaxLayer paraLayer = layers.get(i);
+
+            float verticalScale = (ScreenManager.getScreenHeight() / paraLayer.getImage().getHeight()) + 1f;
+
+            paraLayer.setScale(verticalScale + i);
+            paraLayer.setX(cameraHorizontalProgression * (i + 1) * (-50 * verticalScale));
+            paraLayer.setY(cameraVerticalProgression * (i + 1) * (-30 * verticalScale));
+
+            paraLayer.draw(graphicsHandler);
         }
     }
 
