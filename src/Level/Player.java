@@ -494,7 +494,6 @@ public abstract class Player extends GameObject {
         momentumY = 10f;
 
         if (airGroundState == AirGroundState.GROUND) {
-            makeInvincible(Math.max(30, invincibilityFramesRemaining));
             playerState = PlayerState.STANDING;
         }
     }
