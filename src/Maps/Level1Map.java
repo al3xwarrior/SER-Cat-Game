@@ -3,6 +3,7 @@ package Maps;
 import Enemies.BearEnemy;
 import Enemies.BirdEnemy;
 import Enemies.SquirrelEnemy;
+import Enemies.DanBoss;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
 import EnhancedMapTiles.HorizontalMovingPlatform;
@@ -21,12 +22,15 @@ import java.util.ArrayList;
  * All coordinates below are zero-based tile coordinates (48 pixels per tile).
  */
 public class Level1Map extends Map {
+
     public Level1Map() {
         super("level1_map.txt", "Level 1", new FreshTileset());
         playerStartPosition = getMapTile(3, 8).getLocation();
 
         // tells the player about the time warp right before the bird storm
         addHintZone(130, 150, "Press SHIFT to slow down time!");
+
+        addHintZone(455,468, "It's dan! Remember to pounce on him to defeat him!!!");
     }
 
     @Override
@@ -93,6 +97,13 @@ public class Level1Map extends Map {
                     i % 2 == 0 ? Direction.RIGHT : Direction.LEFT,
                     2.1f));
         }
+
+
+        //boss area: near flat surface so it would be easeier to fight him
+
+        int bossRow = findGroundLevel(480) -1;
+        enemies.add(new DanBoss(getMapTile(480, bossRow).getLocation(), getMapTile(490, bossRow).getLocation(), Direction.LEFT, 2.0f));
+
         return enemies;
     }
 
