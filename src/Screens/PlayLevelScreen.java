@@ -2,6 +2,9 @@ package Screens;
 
 import Engine.Config;
 import Engine.GraphicsHandler;
+import Engine.Key;
+import Engine.KeyLocker;
+import Engine.Keyboard;
 import Engine.Screen;
 import Engine.ScreenManager;
 import Game.GameState;
@@ -27,6 +30,7 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
     protected LevelClearedScreen levelClearedScreen;
     protected LevelLoseScreen levelLoseScreen;
     protected boolean levelCompletedStateChangeStart;
+    protected KeyLocker keyLocker = new KeyLocker();
 
     private float timeDifference = 0f;
     private long previousTime = System.nanoTime();
@@ -66,9 +70,21 @@ public class PlayLevelScreen extends Screen implements PlayerListener {
         this.levelTimer = 300;
 
         this.playLevelScreenState = PlayLevelScreenState.RUNNING;
+
+        // an ESC press that was already held when the level started shouldn't send the player straight back out
+        keyLocker.lockKey(Key.ESC);
     }
 
     public void update() {
+        // ESC leaves the level and goes back to the main menu (the lose screen handles ESC itself)
+        if (Keyboard.isKeyUp(Key.ESC)) {
+            keyLocker.unlockKey(Key.ESC);
+        }
+        if (playLevelScreenState != PlayLevelScreenState.LEVEL_LOSE && Keyboard.isKeyDown(Key.ESC) && !keyLocker.isKeyLocked(Key.ESC)) {
+            goBackToMenu();
+            return;
+        }
+
         // based on screen state, perform specific actions
         switch (playLevelScreenState) {
             // if level is "running" update player and map to keep game logic for the platformer level going
