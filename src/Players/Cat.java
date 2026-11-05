@@ -62,6 +62,12 @@ public class Cat extends Player {
         protected int staminaFailFlashFramesRemaining = 0;
 
 
+          //hockey stick animation
+        protected HashMap<String, Frame[]> normalAnimations;
+        protected HashMap<String, Frame[]> hockeyStickAnimations;
+        protected boolean holdingHockeyStick = false; //true if boomer has the stick
+        protected int hockeyFramesRemaining = 0;
+
 
     public Cat(float x, float y) {
         super(new SpriteSheet(ImageLoader.load("Test_hires.png"), 64, 64), x, y, "STAND_RIGHT");
@@ -74,6 +80,9 @@ public class Cat extends Player {
         walkSpeed = 1f;
         momentumYIncrease = .5f;
         airJumps = 1;
+
+        normalAnimations = animations;
+        hockeyStickAnimations = loadAnimations(new SpriteSheet(ImageLoader.load("Test_hockey.png"), 64, 64));
     }
 
     public void update() {
@@ -82,6 +91,28 @@ public class Cat extends Player {
         updateTimeWarpTimer();
         updateStaminaRegen();
         updateVisualFeedbackTimers();
+        updateHockeyMode();
+    }
+
+
+    public void startHockeyMode(int frames) {
+        hockeyFramesRemaining = frames;
+        setHoldingHockeyStick(true);
+    }
+
+    public void setHoldingHockeyStick(boolean holding){
+        holdingHockeyStick = holding;
+        animations = holding ? hockeyStickAnimations : normalAnimations;
+    }
+
+    public boolean isHoldingHockeyStick() {
+        return holdingHockeyStick;
+    }
+
+    public void updateHockeyMode(){
+        if(holdingHockeyStick && --hockeyFramesRemaining <=0){
+                setHoldingHockeyStick(false);
+        }
     }
 
     public void updateVisualFeedbackTimers() {
