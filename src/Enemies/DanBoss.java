@@ -18,9 +18,9 @@ import java.util.Random;
  
 public class DanBoss extends Enemy {
     
-    private static final int MAX_HEALTH = 15;
+    private static final int MAX_HEALTH = 12;
  
-    //movement that makes him almost as fast as
+    //movement that makes him almost as fast as boomer
  
     private static final float WALK_SPEED = 4f;
     private static final float JUMP_VELOCITY = 12.5f;
