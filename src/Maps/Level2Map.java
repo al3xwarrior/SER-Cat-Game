@@ -2,6 +2,7 @@ package Maps;
 
 import Enemies.BearEnemy;
 import Enemies.BirdEnemy;
+import Enemies.FishEnemy;
 import Enemies.SquirrelEnemy;
 import Engine.ImageLoader;
 import EnhancedMapTiles.EndLevelBox;
@@ -61,6 +62,16 @@ public class Level2Map extends Map {
                     getMapTile((int) lane[1], (int) lane[2]).getLocation(),
                     i % 2 == 0 ? Direction.LEFT : Direction.RIGHT,
                     lane[3]));
+        }
+
+        // fish in Lake Whitney, they chase you if you go in the water
+        // {left edge, right edge, row}
+        int[][] fishPatrols = {{161, 170, 16}, {170, 179, 16}, {179, 188, 16}};
+        for (int[] patrol : fishPatrols) {
+            enemies.add(new FishEnemy(
+                    getMapTile(patrol[0], patrol[2]).getLocation(),
+                    getMapTile(patrol[1], patrol[2]).getLocation(),
+                    2.6f));
         }
 
         // {left edge, right edge, row}
